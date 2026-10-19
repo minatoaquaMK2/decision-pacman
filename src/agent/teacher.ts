@@ -99,7 +99,7 @@ export function teacherPolicy(cfg: TeacherConfig): Policy {
       const prompt = teacherPrompt(enc, peeks);
       const hit = cfg.cache?.get(prompt);
       if (hit) return { ...hit, latencyMs: performance.now() - started, cached: true };
-      const request = () =>
+      const send = () =>
         (cfg.fetchFn ?? fetch)(`${cfg.baseUrl.replace(/\/$/, "")}/chat/completions`, {
           method: "POST",
           headers: { "Content-Type": "application/json", ...(cfg.apiKey ? { Authorization: `Bearer ${cfg.apiKey}` } : {}) },
@@ -113,6 +113,9 @@ export function teacherPolicy(cfg: TeacherConfig): Policy {
           }),
           signal: AbortSignal.timeout(cfg.timeoutMs ?? 120_000),
         });
+      // Servers close keep-alive connections left idle past their timeout, and a request sent on one as it closes
+      // fails before any response (fetch throws a TypeError). One more attempt goes out on a new connection.
+      const request = () => send().catch((err: unknown) => (err instanceof TypeError ? send() : Promise.reject(err)));
       // Hosted APIs rate-limit (429) and occasionally fail (5xx): wait and retry instead of losing the state.
       let res = await request();
       let attemptStarted = started;
