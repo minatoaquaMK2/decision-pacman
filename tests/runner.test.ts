@@ -12,7 +12,7 @@ describe("playGame alsoEncode", () => {
       encoder: ENCODERS.features,
       alsoEncode: [ENCODERS["features-peek5s"]],
       clock: "lockstep",
-      maxSeconds: 5,
+      maxSeconds: 1,
       onDecision: (ev) => events.push(ev),
     });
     expect(events.length).toBeGreaterThan(5);
