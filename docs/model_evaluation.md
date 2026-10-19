@@ -535,7 +535,7 @@ Section 18 built `pacman-0.8b-qwen` with an NVFP4 teacher on an RTX 5090 and ser
 
 **Teacher.** Qwen3.8-27B in BF16, served by vLLM 0.31.0. The published labels came from NVFP4 weights, so the labels are not identical. On `scripts/probe_teacher.py` with thinking off, it scored 0.93 on 40 scenarios at concurrency 1 (p50 646 ms) and 0.96 on 80 at concurrency 16 (11.1 labels per second). The NVFP4 teacher scored 0.97 at 270 ms (section 6).
 
-**Labels.** The same players and seeds as section 18, one `gen-data` process per game, 48 at a time, against two teacher replicas on two H100s. The 93 games took 41 minutes and sent 55,543 requests, with 468 input and 38 output tokens per request on average and 0 reasoning tokens. The longest game sent 1,275 requests, against 1,276 in the published run. 46 of 65,253 states were dropped unlabeled: 37 requests failed at the network level, and 9 answers had no JSON within 200 tokens. After deduplication there were 31,580 training rows and 4,975 validation rows, against 31,570 and 4,973.
+**Labels.** The same players and seeds as section 18, one `gen-data` process per game, 48 at a time, against two teacher replicas on two H100s. The 93 games took 41 minutes and sent 55,543 requests, with 468 input and 38 output tokens per request on average and 0 reasoning tokens. The longest game sent 1,275 requests, against 1,276 in the published run. 46 of 65,253 states were dropped unlabeled. Nine answers had no JSON within 200 tokens. The other 37 were a client bug, since fixed. Every greedy game spent about 12 s on cached decisions without a request (48 processes on 8 cores, each computing lookahead for repeated states), the server closed the idle keep-alive connection, and the next request failed with `fetch failed` (`UND_ERR_SOCKET`, other side closed). The teacher now sends such a request once more on a new connection; on a rerun of the first wave, 0 states were lost instead of 35. After deduplication there were 31,580 training rows and 4,975 validation rows, against 31,570 and 4,973.
 
 **Training.** `training/train.py` unchanged, 2 epochs, one H100, at 0.74 s per step against 0.87 on the 5090. Agreement with the teacher's label on the first 2,000 validation rows, as `train.py` logs it (each run against its own teacher's labels):
 
@@ -570,11 +570,26 @@ Each student is scored against its own teacher's labels on the same validation s
 
 Per game in lockstep, the rebuild ate 407, 235, 224, 456, 226, 394, 218, 469, 443, and 434 pellets with ten games in parallel, and 242, 235, 224, 242, 443, 239, 218, 423, 443, and 453 with one game at a time. Three seeds gave the same game both times; the rest diverged. Paired by seed with the published lockstep run, the differences are -67 (standard error 40) and -101 (standard error 48) pellets per game. In real time, runs 2 and 3 were identical game for game, and run 1 differed on four seeds.
 
+**Same-stack control.** The comparisons above cross hardware and serving stacks, and 10 seeds leave a standard error of about 40 pellets. For a control, the rebuild was exported to Q8_0 GGUF with `training/export_gguf.sh` (llama.cpp b11559; 833,591,744 bytes, the published file's size) and imported next to the published GGUF into Ollama 0.35.1 on an H100, both through `/api/create` with the same system prompt and parameters. Lockstep games ran 10 at a time; the two realtime runs went at the same time, one per model, so both saw the same latency (p50 76 ms).
+
+| Player | Clock | Seeds | Mean pellets | Mean score |
+|---|---|---|---|---|
+| `pacman-0.8b-qwen`, Ollama | lockstep | 100-149 | 400.8 | 7,326 |
+| `pacman-0.8b-qwen-h100`, Ollama | lockstep | 100-149 | 404.7 | 7,324 |
+| `pacman-0.8b-qwen-h100`, vLLM bf16 | lockstep | 100-149 | 405.4 | 7,273 |
+| `pacman-0.8b-qwen`, Ollama | realtime | 100-119 | 392.5 | 7,317 |
+| `pacman-0.8b-qwen-h100`, Ollama | realtime | 100-119 | 473.6 | 7,756 |
+
+Paired by seed in lockstep, the published model minus the rebuild is -3.9 pellets per game (standard error 29.9) on Ollama and -4.6 (23.9) against the rebuild on vLLM. In real time the rebuild ate 81 more per game (standard error 35) and was ahead on 12 of 20 seeds, but the lead came from seeds 100-109 (+175); on seeds 110-119 it was -12. Offline, in the same Ollama session, the published model and the rebuild agreed with the search on 55.9% and 56.0% of 1,000 states and with the H100 teacher's labels on 61.0% and 61.1% (cross-entropy 0.882 and 0.883).
+
+The published model's own lockstep games on seeds 100-109 moved too: 401 pellets here against 417 on the M3 Ultra (section 20), with 4 of 10 games different. A single 10-game run does not separate two models that play this close.
+
 What this shows:
 
 - The pipeline reproduces on H100s with vLLM in place of the 5090 and Ollama. The data has the same size, the training curve ends 0.5 points higher, and offline agreement with the teacher (61.4% against 61.9%), cross-entropy (0.88), and agreement with the search (56.1% against 55.3%) match.
 - vLLM serves the bf16 weights as faithfully as Ollama served Q8_0, provided `--logprobs-mode processed_logprobs` is set. Without it the probabilities are wrong while the choices look right, so a check on choices alone would have missed the bug.
-- The in-game result is not settled. The rebuild ate fewer pellets than the published model in lockstep (333 against 417, about 1.7 and 2.1 standard errors in the two runs) and more in real time (482 against 425). The realtime runs used other hardware at lower latency, so they do not compare across sections. Lockstep games are not reproducible from run to run: the parallel and sequential runs diverged on 7 of 10 seeds. The cause is a guess: vLLM's batch-dependent bf16 numerics, which flip near-ties. A same-session control with the published weights on vLLM was not possible: its GGUF uses the `qwen35` architecture, which transformers 5.17 cannot load from GGUF.
+- In the game, the rebuild plays at least as well as the published model. On one stack and 50 paired seeds, lockstep shows no difference (-3.9 pellets, standard error 29.9). The realtime lead of 81 pellets over 20 seeds does not hold across the two halves of the seeds, so it does not show the rebuild is stronger. The earlier lockstep gap (333 against 417) compared 10 games across hardware, and on the same seeds the published model itself moved from 417 to 401.
+- Lockstep games are not reproducible from run to run on vLLM: the parallel and sequential runs diverged on 7 of 10 seeds. The cause is a guess: batch-dependent bf16 numerics that flip near-ties. Compare players over many paired seeds, not one 10-game run.
 
 ## Conclusions
 
