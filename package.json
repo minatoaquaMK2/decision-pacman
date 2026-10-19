@@ -15,6 +15,7 @@
     "headless": "tsx scripts/run_headless.ts",
     "record": "tsx scripts/record_demo.ts",
     "gen-data": "tsx scripts/gen_teacher_data.ts",
+    "systemone-vllm": "tsx scripts/systemone_vllm.ts",
     "render-audio": "tsx scripts/render_audio.ts"
   },
   "devDependencies": {

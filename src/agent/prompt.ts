@@ -43,3 +43,9 @@ export function renderPrompt(state: unknown, instructions: string, criteria: Rec
 export function renderDecision(enc: EncodedDecision): string {
   return renderPrompt(enc.state, enc.instructions, enc.criteria);
 }
+
+/** Same confidence as Ollama's System One: 1 - entropy / ln(options). */
+export function entropyConfidence(p: number[]): number {
+  const entropy = -p.reduce((s, v) => (v > 0 ? s + v * Math.log(v) : s), 0);
+  return Math.max(0, Math.min(1, 1 - entropy / Math.log(p.length)));
+}

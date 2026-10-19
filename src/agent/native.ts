@@ -8,7 +8,7 @@ import { DecisionApiError, type SystemOneConfig } from "./client.ts";
 import { moveGrammar, parseMove, renderChatDecision } from "./llm.ts";
 import type { PlayerId } from "./players.ts";
 import { systemOnePolicy, type Policy, type PolicyDecision } from "./policies.ts";
-import { renderDecision } from "./prompt.ts";
+import { entropyConfidence, renderDecision } from "./prompt.ts";
 
 interface NativeReply {
   probabilities?: number[];
@@ -42,12 +42,6 @@ export function nativeBridge(): NativeBridge | null {
 
 const MISSING_MODEL_HINT =
   "Copy the model file into the app's Documents folder (see the iPhone section of the README), then pick the player again.";
-
-/** Same confidence as Ollama's System One: 1 - entropy / ln(options). */
-function entropyConfidence(p: number[]): number {
-  const entropy = -p.reduce((s, v) => (v > 0 ? s + v * Math.log(v) : s), 0);
-  return Math.max(0, Math.min(1, 1 - entropy / Math.log(p.length)));
-}
 
 /** The fine-tuned decision model: one forward pass over the System One prompt, softmax over the option letters. */
 export function nativePolicy(bridge: NativeBridge, modelName: string, player: PlayerId = "finetuned"): Policy {
