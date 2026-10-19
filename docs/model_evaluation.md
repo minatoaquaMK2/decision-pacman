@@ -591,6 +591,43 @@ What this shows:
 - In the game, the rebuild plays at least as well as the published model. On one stack and 50 paired seeds, lockstep shows no difference (-3.9 pellets, standard error 29.9). The realtime lead of 81 pellets over 20 seeds does not hold across the two halves of the seeds, so it does not show the rebuild is stronger. The earlier lockstep gap (333 against 417) compared 10 games across hardware, and on the same seeds the published model itself moved from 417 to 401.
 - Lockstep games are not reproducible from run to run on vLLM: the parallel and sequential runs diverged on 7 of 10 seeds. The cause is a guess: batch-dependent bf16 numerics that flip near-ties. Compare players over many paired seeds, not one 10-game run.
 
+### 23. DeepSeek-V4-Flash as the teacher
+
+Section 22 rebuilt the student with the published teacher. This run swaps the teacher for DeepSeek-V4-Flash-0731, a large mixture-of-experts model that the same cluster already served for other users (vLLM 0.25.0, eight H100s), and keeps everything else. The student is called `pacman-0.8b-ds-h100` here.
+
+**Teacher.** Thinking off through the default `chat_template_kwargs`. On `scripts/probe_teacher.py` it scored 0.97 on 40 scenarios at concurrency 1 (p50 145 ms) and 0.97 on 80 at concurrency 8 (15.5 labels per second), against 0.93 and 0.96 for Qwen3.8-27B in BF16 (section 22).
+
+**Labels.** The same players and seeds, 12 `gen-data` processes at a time, because the service is shared and runs at most 16 sequences. The 93 games took 53 minutes and sent 55,588 requests, with 463 input and 32 output tokens per request on average, 0 reasoning tokens, and 0 states dropped. Players are deterministic, so the states are the ones Qwen labeled: DeepSeek chose the same move on 91.1% of 57,209 training states and 90.4% of 8,044 validation states. After deduplication there were 31,585 training rows and 4,975 validation rows.
+
+**Training and serving.** `training/train.py` unchanged, 2 epochs, one H100, 25 minutes. Agreement with its own teacher's labels on the first 2,000 validation rows rose from 32.8% to 62.3% (cross-entropy 0.955). Served by vLLM through `scripts/systemone_vllm.ts`, it matched its bf16 weights on 199 of 200 states (largest probability difference 0.031). For the comparisons below it was exported to Q8_0 GGUF and imported into the same Ollama 0.35.1 as the other two students.
+
+**Agreement**, 1,000 held-out states per column, all three students on Ollama in one session:
+
+| Model | DeepSeek's labels | Qwen BF16's labels | The search |
+|---|---|---|---|
+| `pacman-0.8b-qwen` (published) | 64.4% | 61.0% | 55.9% |
+| `pacman-0.8b-qwen-h100` (section 22) | 63.9% | 61.1% | 56.0% |
+| `pacman-0.8b-ds-h100` | 63.2% | 59.5% | 55.5% |
+
+**In-game**, Ollama on one H100, seeds as listed. The realtime runs of all three students went at the same time (p50 about 75 ms):
+
+| Player | Clock | Seeds | Mean pellets | Mean score | Ghosts eaten |
+|---|---|---|---|---|---|
+| `pacman-0.8b-qwen` | lockstep | 100-149 | 400.8 | 7,326 | 8.8 |
+| `pacman-0.8b-qwen-h100` | lockstep | 100-149 | 404.7 | 7,324 | 8.7 |
+| `pacman-0.8b-ds-h100` | lockstep | 100-149 | 390.0 | 5,992 | 5.7 |
+| `pacman-0.8b-qwen` | realtime | 100-119 | 449.6 | 8,090 | 9.9 |
+| `pacman-0.8b-qwen-h100` | realtime | 100-119 | 469.4 | 8,248 | 9.9 |
+| `pacman-0.8b-ds-h100` | realtime | 100-119 | 471.8 | 7,148 | 7.0 |
+
+Paired by seed, the published student ate 10.8 more pellets per lockstep game than the DeepSeek student (standard error 32.5) and 22.1 fewer in real time (37.0). The DeepSeek student ate about 3 fewer ghosts per game in both clocks (realtime: 2.85, standard error 0.72), which cost 942 to 1,334 points per game (standard errors 565 to 614). A simple explanation does not hold: on the 4,151 training states with a frightened ghost within 8 steps, DeepSeek chose the exit toward it 49.2% of the time and Qwen 46.3%. The published student's realtime mean on seeds 100-119 was 392.5 in section 22 and 449.6 here, so realtime runs of one model differ by about 60 pellets.
+
+What this shows:
+
+- A different, larger teacher that agrees with Qwen on 91% of states gives a student that collects as many pellets in both clocks and survives as long, but eats fewer frightened ghosts, so it scores about 1,000 points less per game.
+- The pipeline needs no change for a shared in-cluster teacher. Capping the processes kept the service's queue empty: 12 requests running and 0 waiting at every check.
+- Offline agreement does not rank these students. All three agree with either teacher's labels within 2 to 5 points, and the Qwen-trained students agree with DeepSeek's labels better than the DeepSeek student does. The labels differ mostly where options are close, and the student learns the common part.
+
 ## Conclusions
 
 1. Use `tev1:4b` for the real-time demo. At about 160 ms, a decision is shorter than the typical 400 ms to 1.2 s Pac-Man needs to reach the next junction at arcade speed.

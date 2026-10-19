@@ -238,6 +238,14 @@
 - Shortened the `tests/runner.test.ts` alsoEncode game from 5 s to 1 s of play: 146 features-peek5s encodings took 9.7 s on the 8-core VM (vitest limit 5 s); 26 now take 1.5 s. 98/98 tests pass.
 - Same-stack control on an H100, Ollama 0.35.1, both Q8_0 GGUFs imported through `/api/create` (the rebuild exported with `export_gguf.sh` and llama.cpp b11559): probe 0.88 published, 0.85 rebuild; search agreement 55.9% and 56.0%, teacher-label agreement 61.0% and 61.1% (n=1,000). Lockstep, seeds 100-149: published 400.8, rebuild 404.7, rebuild on vLLM 405.4; paired published minus rebuild -3.9 (SE 29.9). Realtime, seeds 100-119, both runs at once, p50 76 ms: published 392.5, rebuild 473.6, paired +81 for the rebuild (SE 35), +175 on seeds 100-109 and -12 on 110-119. The published model's lockstep on seeds 100-109 was 401 here against 417 on the M3 Ultra.
 
+### 2026-10-19 (DeepSeek-V4-Flash as the teacher)
+
+- Teacher: DeepSeek-V4-Flash-0731, shared in-cluster vLLM 0.25.0 (TP8, max 16 sequences), thinking off. `probe_teacher.py nothink`: 0.97 at c=1 (p50 145 ms), 0.97 at c=8 (15.5 labels/s).
+- Labels, q1 seeds, 12 processes: 53 min, 55,588 requests (463 in / 32 out tokens), 0 dropped, 0 reasoning tokens; the service showed 12 running and 0 waiting. Same move as the Qwen BF16 labels on 91.1% of 57,209 train and 90.4% of 8,044 val states. 31,585 / 4,975 rows.
+- Training on one H100: 25 min, own-label validation agreement 32.8% to 62.3%, ce 0.955. vLLM parity 199/200, max difference 0.031. Exported to Q8_0 and imported into Ollama 0.35.1 as `pacman-0.8b-ds-h100`.
+- Ollama, 1,000 states: own labels 63.2%, Qwen labels 59.5%, search 55.5% (published 64.4 / 61.0 / 55.9, Qwen rebuild 63.9 / 61.1 / 56.0).
+- Lockstep seeds 100-149: 390.0 pellets, 5,992 points, 5.7 ghosts (published 400.8 / 7,326 / 8.8). Realtime seeds 100-119, three students at once, p50 about 75 ms: 471.8 / 7,148 / 7.0 (published 449.6 / 8,090 / 9.9; Qwen rebuild 469.4 / 8,248 / 9.9). Fewer ghosts per realtime game than the published student: 2.85 (SE 0.72). Section 23 of `model_evaluation.md`.
+
 ## Lessons Learned
 - vLLM's `allowed_token_ids` restricts sampling but not the returned log-probabilities: by default `top_logprobs` lists the top tokens of the whole vocabulary. A fine-tuned decision model puts mass on letters past the last option (D, E), which pushed real options out of the list and silently scored them 0, while the choices stayed right. Start vLLM with `--logprobs-mode processed_logprobs`, and check served probabilities against the training weights per state, not only the choices. A base-model check is not enough, because its top tokens happened to be exactly the option letters.
 - Lockstep games are not reproducible across runs on vLLM: 7 of 10 seeds diverged between a parallel and a sequential run of the same model. Compare lockstep results over several runs, and do not read a single 10-game run as exact.
