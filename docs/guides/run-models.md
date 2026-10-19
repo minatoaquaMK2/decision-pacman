@@ -57,6 +57,18 @@ npm run headless -- --policy pacman-0.8b-qwen --games 3 --seed 100
 ```
 In the browser, open `http://localhost:5173/?model=pacman-0.8b-qwen`. To train it yourself, see [distill.md](distill.md).
 
+### Decision models served by vLLM
+
+vLLM has no `/v1/systemone` endpoint. `scripts/systemone_vllm.ts` serves one in front of a vLLM server, so the browser game, the headless runner, and the scoring scripts play a model that vLLM serves. Serve the model under the name the clients ask for, then start the adapter on Ollama's port:
+```bash
+vllm serve runs/ft_q1/merged --served-model-name pacman-0.8b-qwen --logprobs-mode processed_logprobs --max-model-len 4096 --limit-mm-per-prompt '{"image":0,"video":0}'
+npm run systemone-vllm -- --vllm http://localhost:8000 --port 11434
+npm run headless -- --policy pacman-0.8b-qwen --games 3 --seed 100
+```
+If Ollama already uses port 11434, pick another port and pass it as `--base-url` (headless, `score_ollama.py`) or `VITE_DECISION_BASE_URL` (dev server). The adapter listens on 127.0.0.1 unless `--host` says otherwise.
+
+For each choice question, the adapter renders the prompt Ollama scores (`src/agent/prompt.ts`), asks vLLM's `/v1/completions` for one token restricted to the option letters (`allowed_token_ids`), and renormalizes the letters' log-probabilities. That is the softmax over option-letter logits that Ollama returns and `training/train.py` trains. `--logprobs-mode processed_logprobs` is required: without it, vLLM returns the top tokens of the whole vocabulary, where letters past the last option can push an option out of the list, and the adapter answers with an error naming the missing letters. The prompt uses the Qwen3.5 chat template, so the adapter fits Qwen3.5-based models such as `pacman-0.8b-qwen`. `runs/ft_q1/merged` is the output of `training/merge.py` (see [distill.md](distill.md#serve-with-vllm-instead-of-ollama)).
+
 ## Plain chat models (llm:<model>)
 
 Plain chat models run through Ollama's `/api/chat` endpoint using the policy format `llm:<ollama-model>`. The agent supplies the same facts as decision models, applies a JSON schema restricting `move` to legal options, turns thinking off, sets temperature to 0, and derives probabilities from token logprobs. Ollama 0.35.0 provides no logprobs for `gemma4:e4b`. The adapter code is in `src/agent/llm.ts`.

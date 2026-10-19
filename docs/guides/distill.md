@@ -30,6 +30,8 @@ The player only decides which states get visited; the teacher labels every one o
 
 The teacher server returned no logprobs, so the labels are hard. Generating the 54,325 teacher requests took about 65 minutes at about 14 requests per second. After deduplication, `pacman-0.8b-qwen` trained on 31,570 training rows and 4,973 validation rows.
 
+A rebuild on H100s (section 22 of [model_evaluation.md](../model_evaluation.md)) served Qwen3.8-27B in BF16 with vLLM 0.31.0, one replica on each of two H100 80GB cards, and ran one `gen-data` process per seed of the ranges above (`--games 1`), 48 at a time, as [teacher-api.md](teacher-api.md) shows for hosted APIs. The 93 games sent 55,543 requests in 41 minutes. That is more than 54,325 because each process has its own answer cache. The teacher's default `chat_template_kwargs` turned thinking off, and the `gen-data` reports counted 0 reasoning tokens.
+
 `--also-encode features-peek5s` stores a second, lookahead encoding of each state under `alt`, and `build_sft.py --encoder features-peek5s` builds training rows from it. That is how student B (`pacman-0.8b-qwen-peek`) of section 18 of [model_evaluation.md](../model_evaluation.md) was built. Its input contains lookahead, so its scores are records, not ladder rows. You do not need it for `pacman-0.8b-qwen`.
 
 Note: without `--labeler`, `gen-data` labels each state with the `oracle-5s` search itself and stores every option's rollout value. The earlier `pacman-0.8b` was trained that way (`python training/build_sft.py --data data/v1 --out data/sft`, soft targets at temperature 50) and played at the same level; see the FAQ in the [README](../../README.md#faq).
@@ -60,7 +62,9 @@ CUDA_VISIBLE_DEVICES=0 python training/train.py --data data/sft_q1 --out runs/ft
 
 The script defaults to `--base Qwen/Qwen3.5-0.8B`, `--batch 32`, `--lr 1e-4`, `--rank 16`, `--alpha 32`, and `--epochs 1.0`. The published model was trained with `--epochs 2`.
 
-On one RTX 5090, training takes about 32 minutes for 1,974 steps. The script writes the LoRA adapter to `<out>/adapter`. To train on a Mac instead, see [distill-mlx.md](distill-mlx.md).
+On one RTX 5090, training takes about 32 minutes for 1,974 steps. On one H100 80GB it took 0.74 s per step, 25 minutes including model load. The script writes the LoRA adapter to `<out>/adapter`. To train on a Mac instead, see [distill-mlx.md](distill-mlx.md).
+
+The dependencies have lower bounds only, so a fresh install resolves to the newest releases. The H100 run pinned the resolve to releases older than a date with `uv pip install --exclude-newer 2026-10-12T00:00:00Z -r training/pyproject.toml`, which gave torch 2.14.1 (CUDA 13.0), transformers 5.17.0, peft 0.21.2, and unsloth 2026.10.3.
 
 ## 4. Export to GGUF
 
@@ -102,6 +106,26 @@ The published model takes the other route: its Modelfile on Hugging Face (`Model
 Check the result with `python3 scripts/probe_decision_models.py pacman-0.8b-qwen`.
 
 `training/prompt.py` formats prompts identically to Ollama's `/v1/systemone` endpoint. On 50 validation states, the served Q8_0 model and the bf16 training weights chose the same option on 50 of 50.
+
+## Serve with vLLM instead of Ollama
+
+vLLM serves the merged bf16 weights directly, so sections 4 and 5 are not needed. vLLM has no `/v1/systemone` endpoint; `scripts/systemone_vllm.ts` serves one in front of it, so the commands in section 6 run unchanged. Merge the adapter in the training environment, serve the merged weights under the model name, and start the adapter on Ollama's port:
+
+```bash
+python training/merge.py --adapter runs/ft_q1/adapter --out runs/ft_q1/merged
+vllm serve runs/ft_q1/merged --served-model-name pacman-0.8b-qwen --logprobs-mode processed_logprobs --max-model-len 4096 --limit-mm-per-prompt '{"image":0,"video":0}'
+npm run systemone-vllm -- --vllm http://localhost:8000 --port 11434
+```
+
+How the adapter reads the option probabilities is in [run-models.md](run-models.md#decision-models-served-by-vllm). To check parity, score the same states with `training/score_hf.py` on `runs/ft_q1/merged` and through the adapter with `score_ollama.py --out`, then compare them per state:
+
+```bash
+python training/score_hf.py --model runs/ft_q1/merged --data data/q1/val --target label --n 200 --out runs/ft_q1/score_hf.json
+python3 training/score_ollama.py --model pacman-0.8b-qwen --data data/q1/val --target label --n 200 --out runs/ft_q1/score_vllm.json
+python3 training/compare_scores.py runs/ft_q1/score_hf.json runs/ft_q1/score_vllm.json
+```
+
+On 200 validation states of the H100 rebuild, the model served by vLLM 0.31.0 and its bf16 weights chose the same option on 197. The three that differ are ties or near-ties on the training side (margins 0, 0, and 0.046 between the top two options). Probabilities differed by at most 0.031, median 0.008.
 
 ## 6. Score
 

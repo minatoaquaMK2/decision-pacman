@@ -17,11 +17,12 @@ The game is a browser application. A deterministic TypeScript engine steps at a 
  └───────────────────────────┼─────────────────────┼─────┘
                              │ answer + probs      │ POST /v1/systemone or POST /api/chat
                              └──── decision endpoint ◄┘
-                                   (Ollama :11434, or hosted Jev via dev-server proxy)
+                                   (Ollama :11434, vLLM behind scripts/systemone_vllm.ts,
+                                    or hosted Jev via dev-server proxy)
 ```
 
 The system supports four kinds of players alongside scripted baselines (`random`, `greedy`):
-1. Local decision models served over Ollama's `/v1/systemone` API (`tev1:0.8b`, `tev1:4b`, and fine-tuned models such as `pacman-0.8b-qwen`). The model returns probabilities for every legal option, read from option-letter logits.
+1. Local decision models served over Ollama's `/v1/systemone` API (`tev1:0.8b`, `tev1:4b`, and fine-tuned models such as `pacman-0.8b-qwen`). The model returns probabilities for every legal option, read from option-letter logits. A fine-tuned model served by vLLM plays through `scripts/systemone_vllm.ts`, which serves the same endpoint in front of vLLM.
 2. Plain chat models accessed through Ollama's `/api/chat` using policy names formatted as `llm:<ollama-model>` (e.g. `llm:phi4-mini`, `llm:gemma4:e4b`, `llm:qwen3.5:4b`). They receive the same state facts, a JSON schema restricting `move` to the legal options, thinking off, and temperature 0. Probabilities come from token logprobs.
 3. TypeSafe's hosted decision model Jev (`jev-latest`) at `https://api.typesafe.ai/v1/systemone`, with a bearer key from `TYPESAFE_API_KEY`. The headless `jev` policy calls it directly. In the browser, the dev-server proxy adds the key, so it never reaches the page. Hosted requests leave out Ollama's `keep_alive` field, which the API rejects.
 4. OpenAI's Decisions API (`POST https://api.openai.com/v1/decisions`, model `gpt-6-luna`), with a bearer key from `OPENAI_API_KEY`, under the policy name `openai:<model>`. Its request has a different shape from `/v1/systemone` but carries the same facts: the encoded state as `input`, and one `choice` question with the encoder's instructions and the legal options. It returns a probability for every option. In the browser, the dev server proxies `/openai` and adds the key.
@@ -68,6 +69,7 @@ Full method and numbers are in `docs/model_evaluation.md`. The constraints that 
 - `scripts/`: command-line entrypoints for headless execution, data generation, benchmarks, and probes:
   - `scripts/run_headless.ts`: headless game runner supporting realtime and lockstep clocks (`npm run headless`).
   - `scripts/gen_teacher_data.ts`: records game states labeled by the teacher (`npm run gen-data`).
+  - `scripts/systemone_vllm.ts`: serves `/v1/systemone` in front of a vLLM server (`npm run systemone-vllm`). Each choice question becomes one `/v1/completions` request over the prompt from `src/agent/prompt.ts`, with one output token restricted to the option letters; the letters' log-probabilities, renormalized, are the answer.
   - `scripts/bench_prefill_decode.py`: measures latency split into prefill and decode across Ollama and llama.cpp backends.
   - `scripts/eval_general_decisions.py`: scores decision models on JevBench's public items, decisions that are not Pac-Man.
   - `scripts/probe_decision_models.py`, `scripts/probe_teacher.py`: probe a decision model or a chat teacher on 40 synthetic scenarios.
@@ -81,6 +83,7 @@ Full method and numbers are in `docs/model_evaluation.md`. The constraints that 
   - `training/prompt.py`: canonical Python prompt rendering matching Ollama's `/v1/systemone` format.
   - `training/score_ollama.py`: evaluates offline agreement on held-out validation states, supporting decision models, chat models (`--chat`), and hosted Jev.
   - `training/score_hf.py`: checks parity between Hugging Face model outputs and Ollama serving.
+  - `training/compare_scores.py`: joins `score_hf.py` output with a served model's `score_ollama.py --out` file per state and reports matching choices, probability differences, and the margins where choices differ.
 - `ios/`: SwiftUI application hosting the web build in a WKWebView with native decision handling (see decision 10). Runs the fine-tuned 0.8B model and `phi4-mini` on device via llama.cpp on Metal, and routes Jev requests through a native HTTPS bridge. Model files, API keys, the llama.cpp xcframework, and the web build are not committed to the repository.
 
 ## Key decisions
@@ -161,6 +164,8 @@ Baselines: `random` (uniform over legal options) and `greedy` (nearest pellet, a
 **Training.** `training/train.py`: LoRA (rank 16, alpha 32) on every language-side linear layer, lr 1e-4 cosine with 3% warmup, batch 32, 2 epochs (1,974 steps), bf16, one RTX 5090. The loss is cross-entropy between the target distribution and the softmax over option-letter logits at the answer position. Only that position is projected through the output layer, so memory stays small despite the 248k-token vocabulary. A startup check compares that projection with the model's own logits. Training takes about 32 minutes.
 
 **Serving.** `training/export_gguf.sh` merges the adapter and converts to Q8_0 GGUF with llama.cpp. The GGUF is imported into Ollama with Tev1's system prompt, as `pacman-0.8b-qwen`, either through `/api/create` or through the Modelfile published with the weights on Hugging Face. Ollama 0.35.0 does not accept `CAPABILITY` in a Modelfile, but it serves `/v1/systemone` for the imported model anyway. The game needs no change beyond the model name.
+
+The merged bf16 weights can also be served by vLLM, with no GGUF step. vLLM has no `/v1/systemone`, so `scripts/systemone_vllm.ts` serves it: one adapter in front of vLLM rather than a vLLM path in each client, so the game, the headless runner, and the scoring scripts run unchanged. It restricts the one output token to the option letters with `allowed_token_ids`, and vLLM must run with `--logprobs-mode processed_logprobs`, so the log-probabilities come after that restriction and include every option letter whatever its rank in the full vocabulary. Renormalized over the letters, they are the same softmax Ollama computes and the loss trains. By default vLLM returns the top tokens of the whole vocabulary; the fine-tuned model puts mass on letters past the last option, which pushed real options out of the list, so the adapter refuses to answer when a letter is missing.
 
 **GPU use.** The GPU host serves the teacher model on all three cards. Training borrows one card with the cluster's lease script, which drops that replica from the router, and then returns it. The other two replicas keep serving.
 

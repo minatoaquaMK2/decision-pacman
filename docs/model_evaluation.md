@@ -529,6 +529,53 @@ What this shows:
 - The request maps one-to-one onto Jev's: state as evidence, one choice question, a probability per option. The same facts and the same question went to both, so the difference is the model behind the endpoint.
 - Limits: two 10-game runs; a public beta whose model, latency, and price may change; the comparison with section 14's chat models is across days; the answers vary slightly between identical requests. Agreement with the teacher and JevBench accuracy were not measured.
 
+### 22. Rebuilding the student on H100s, served by vLLM
+
+Section 18 built `pacman-0.8b-qwen` with an NVFP4 teacher on an RTX 5090 and served it from Ollama. This rebuild ran the same pipeline on NVIDIA H100 80GB cards in a Kubernetes cluster and served the student with vLLM instead of Ollama, to check that the recipe reproduces on other hardware and another serving stack. The commands are in [guides/distill.md](guides/distill.md). The rebuilt student is called `pacman-0.8b-qwen-h100` here.
+
+**Teacher.** Qwen3.8-27B in BF16, served by vLLM 0.31.0. The published labels came from NVFP4 weights, so the labels are not identical. On `scripts/probe_teacher.py` with thinking off, it scored 0.93 on 40 scenarios at concurrency 1 (p50 646 ms) and 0.96 on 80 at concurrency 16 (11.1 labels per second). The NVFP4 teacher scored 0.97 at 270 ms (section 6).
+
+**Labels.** The same players and seeds as section 18, one `gen-data` process per game, 48 at a time, against two teacher replicas on two H100s. The 93 games took 41 minutes and sent 55,543 requests, with 468 input and 38 output tokens per request on average and 0 reasoning tokens. The longest game sent 1,275 requests, against 1,276 in the published run. 46 of 65,253 states were dropped unlabeled: 37 requests failed at the network level, and 9 answers had no JSON within 200 tokens. After deduplication there were 31,580 training rows and 4,975 validation rows, against 31,570 and 4,973.
+
+**Training.** `training/train.py` unchanged, 2 epochs, one H100, at 0.74 s per step against 0.87 on the 5090. Agreement with the teacher's label on the first 2,000 validation rows, as `train.py` logs it (each run against its own teacher's labels):
+
+| Step | 0 | 200 | 400 | 600 | 800 | 1,000 | 1,200 | 1,400 | 1,600 | 1,800 | 1,974 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| RTX 5090 (section 20) | 30.8% | 57.2% | 56.6% | 57.6% | 57.6% | 58.3% | 60.2% | 60.9% | 61.0% | 61.7% | 61.9% |
+| H100 | 30.9% | 55.7% | 58.1% | 59.0% | 58.9% | 60.2% | 60.2% | 60.7% | 62.5% | 62.0% | 62.4% |
+
+The final validation cross-entropy was 0.960, against 0.966 for the 5090 run.
+
+**Serving.** The merged bf16 weights, with no GGUF step, served by vLLM 0.31.0 behind `scripts/systemone_vllm.ts`. On 200 validation states, the served model and the bf16 weights scored with `training/score_hf.py` chose the same option on 197. The three that differ are ties or near-ties on the training side (margins 0, 0, and 0.046). Probabilities differed by at most 0.031, median 0.008. For the Ollama Q8_0 model of section 18 the figures were 48 of 50, 0.027, and 0.010.
+
+The first full-model parity check found a bug in the adapter. vLLM returns the top log-probabilities of the whole vocabulary by default, even when `allowed_token_ids` restricts the output to the option letters. The fine-tuned model puts mass on letters past the last option: on one three-option state, A 0.49, C 0.14, D 0.12, B 0.11. Option B dropped out of the returned list, and the adapter scored it 0. Choices were unaffected, but cross-entropy against the teacher read 1.16 instead of 0.88. vLLM's `--logprobs-mode processed_logprobs` takes the log-probabilities after the restriction, and the adapter now refuses to answer when a letter is missing. A first parity check on the base model had passed because its top tokens were the letters anyway.
+
+**Agreement**, 1,000 held-out states:
+
+| Model | With its teacher | Cross-entropy | With the search | Latency p50 |
+|---|---|---|---|---|
+| `pacman-0.8b-qwen` (section 18; Ollama Q8_0 on the M3 Ultra) | 61.9% | 0.88 | 55.3% | 52 ms |
+| `pacman-0.8b-qwen-h100` (vLLM bf16 on an H100, over the local network) | 61.4% | 0.88 | 56.1% | 37 ms |
+
+Each student is scored against its own teacher's labels on the same validation states. The search column uses states from the validation seeds of section 18, labeled by `oracle-5s`. On `scripts/probe_decision_models.py` the rebuild scored 0.85 (13 of 13 frightened-ghost scenarios) at 35 ms.
+
+**In-game**, seeds 100-109, 1x, 5-minute cap. The headless runner ran on a separate 8-core VM; the realtime runs went one after another with nothing else running:
+
+| Player | Clock | Mean pellets | Mean score | Mean survival | Runs |
+|---|---|---|---|---|---|
+| `pacman-0.8b-qwen` (sections 18 and 20) | lockstep | 417 | 7,649 | 86 s | 1 |
+| `pacman-0.8b-qwen-h100` | lockstep | 333 | 5,632 | 70 s | 2 (351, 316) |
+| `pacman-0.8b-qwen` (sections 18 and 20) | realtime | 425 | | 86 s | 3 (441, 467, 366), M3 Ultra, 55 ms |
+| `pacman-0.8b-qwen-h100` | realtime | 482 | 8,223 | 94 s | 3 (482.5, 481.2, 481.2), 37 ms |
+
+Per game in lockstep, the rebuild ate 407, 235, 224, 456, 226, 394, 218, 469, 443, and 434 pellets with ten games in parallel, and 242, 235, 224, 242, 443, 239, 218, 423, 443, and 453 with one game at a time. Three seeds gave the same game both times; the rest diverged. Paired by seed with the published lockstep run, the differences are -67 (standard error 40) and -101 (standard error 48) pellets per game. In real time, runs 2 and 3 were identical game for game, and run 1 differed on four seeds.
+
+What this shows:
+
+- The pipeline reproduces on H100s with vLLM in place of the 5090 and Ollama. The data has the same size, the training curve ends 0.5 points higher, and offline agreement with the teacher (61.4% against 61.9%), cross-entropy (0.88), and agreement with the search (56.1% against 55.3%) match.
+- vLLM serves the bf16 weights as faithfully as Ollama served Q8_0, provided `--logprobs-mode processed_logprobs` is set. Without it the probabilities are wrong while the choices look right, so a check on choices alone would have missed the bug.
+- The in-game result is not settled. The rebuild ate fewer pellets than the published model in lockstep (333 against 417, about 1.7 and 2.1 standard errors in the two runs) and more in real time (482 against 425). The realtime runs used other hardware at lower latency, so they do not compare across sections. Lockstep games are not reproducible from run to run: the parallel and sequential runs diverged on 7 of 10 seeds. The cause is a guess: vLLM's batch-dependent bf16 numerics, which flip near-ties. A same-session control with the published weights on vLLM was not possible: its GGUF uses the `qwen35` architecture, which transformers 5.17 cannot load from GGUF.
+
 ## Conclusions
 
 1. Use `tev1:4b` for the real-time demo. At about 160 ms, a decision is shorter than the typical 400 ms to 1.2 s Pac-Man needs to reach the next junction at arcade speed.

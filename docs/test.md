@@ -8,6 +8,7 @@
 - Decision points: next-junction detection and the exit set for every junction on the maze.
 - Encoders: output for fixed states is snapshot-tested, the options match the legal exits, the serialized size stays under the token budget (character count as a proxy), and no verdict fields (safe, danger, recommend) appear.
 - Agent loop: with a fake client, at most one request is in flight, an answer for a stale junction is dropped, and a failed request leaves the intent unchanged.
+- vLLM adapter (`scripts/systemone_vllm.ts`), against a fake vLLM server: the answer is the softmax over the option letters, keyed by option; each request asks for one token restricted to the option letters on the prompt Ollama scores; a letter missing from vLLM's log-probabilities is an error, never a zero; an unknown model is a 404.
 
 ## Integration tests (opt-in, need a running Ollama)
 
