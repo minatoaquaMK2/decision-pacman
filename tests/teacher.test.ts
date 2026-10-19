@@ -122,3 +122,37 @@ describe("teacher on a hosted API", () => {
     expect(d.choice).toBe("back");
   });
 });
+
+describe("teacher connection reuse", () => {
+  const closed = () => new TypeError("fetch failed", { cause: Object.assign(new Error("other side closed"), { code: "UND_ERR_SOCKET" }) });
+  const reply = () => new Response(JSON.stringify({ choices: [{ message: { content: '{"move": "back", "reason": "r"}' } }] }));
+  const decision = () => {
+    const s = createGame(1);
+    while (s.phase !== "playing") step(s);
+    return { enc: ENCODERS.features.encode(s, findDecisionPoint(s)), s };
+  };
+
+  it("asks again when the server closed the idle connection the request went out on", async () => {
+    let calls = 0;
+    const fetchFn = (async () => {
+      calls++;
+      if (calls === 1) throw closed();
+      return reply();
+    }) as unknown as typeof fetch;
+    const { enc, s } = decision();
+    const d = await teacherPolicy({ baseUrl: "http://teacher.invalid/v1", model: "m", fetchFn }).decide(enc, undefined, s);
+    expect(d.choice).toBe("back");
+    expect(calls).toBe(2);
+  });
+
+  it("asks only once more when the server cannot be reached", async () => {
+    let calls = 0;
+    const fetchFn = (async () => {
+      calls++;
+      throw closed();
+    }) as unknown as typeof fetch;
+    const { enc, s } = decision();
+    await expect(teacherPolicy({ baseUrl: "http://teacher.invalid/v1", model: "m", fetchFn }).decide(enc, undefined, s)).rejects.toThrow(/fetch failed/);
+    expect(calls).toBe(2);
+  });
+});
