@@ -2,6 +2,7 @@
 // student and answers with one option plus a short reason.
 import type { EncodedDecision } from "../encoders/types.ts";
 import { TPS } from "../engine/game.ts";
+import { moveProbabilities, type TokenLogprob } from "./llm.ts";
 import { peek, type PeekOutcome } from "./oracle.ts";
 import type { Policy, PolicyDecision } from "./policies.ts";
 
@@ -31,6 +32,8 @@ export interface TeacherConfig {
    * at temperature 0, and lockstep play revisits identical states often.
    */
   cache?: Map<string, TeacherDecision>;
+  /** Ask for token logprobs and report the teacher's probability for each option at its move (`probabilities`). */
+  logprobs?: boolean;
   /** Request function, replaceable in tests. */
   fetchFn?: typeof fetch;
 }
@@ -109,6 +112,7 @@ export function teacherPolicy(cfg: TeacherConfig): Policy {
             temperature: 0,
             max_tokens: cfg.think ? 4096 : 200,
             chat_template_kwargs: { enable_thinking: !!cfg.think },
+            ...(cfg.logprobs ? { logprobs: true, top_logprobs: 20 } : {}),
             ...cfg.extraBody,
           }),
           signal: AbortSignal.timeout(cfg.timeoutMs ?? 120_000),
@@ -127,7 +131,7 @@ export function teacherPolicy(cfg: TeacherConfig): Policy {
       }
       if (!res.ok) throw new Error(`teacher HTTP ${res.status}: ${(await res.text()).slice(0, 300)}`);
       const body = (await res.json()) as {
-        choices: { message: { content?: string } }[];
+        choices: { message: { content?: string }; logprobs?: { content?: TokenLogprob[] } }[];
         usage?: {
           prompt_tokens?: number;
           completion_tokens?: number;
@@ -137,9 +141,11 @@ export function teacherPolicy(cfg: TeacherConfig): Policy {
       };
       const text = body.choices[0]?.message?.content ?? "";
       const { move, reason } = parseTeacherReply(text, enc.keys);
+      const probabilities = cfg.logprobs ? moveProbabilities(text, body.choices[0]?.logprobs?.content, enc.keys) : undefined;
       const decision: TeacherDecision = {
         choice: move,
         reason,
+        ...(probabilities ? { probabilities } : {}),
         // The successful request's own latency; time spent waiting out rate limits is not included.
         latencyMs: performance.now() - attemptStarted,
         ...(retries ? { retries } : {}),

@@ -14,6 +14,8 @@ export interface PolicyEnv {
   teacherExtraBody?: Record<string, unknown>;
   /** TEACHER_MAX_RETRIES: retries after HTTP 429 or 5xx (default 0). */
   teacherMaxRetries?: number;
+  /** TEACHER_LOGPROBS=1: record the teacher's per-option probabilities from token logprobs. */
+  teacherLogprobs?: boolean;
   /** Shared by every teacher policy made with this env: identical prompts are asked once. */
   teacherCache?: Map<string, TeacherDecision>;
 }
@@ -60,6 +62,7 @@ export function makePolicy(name: string, seed: number, env: PolicyEnv): Policy {
       apiKey: env.teacherApiKey,
       extraBody: env.teacherExtraBody,
       maxRetries: env.teacherMaxRetries,
+      logprobs: env.teacherLogprobs,
       think: !!teacher[1],
       peekSeconds: teacher[2] ? Number(teacher[2]) : undefined,
       cache: env.teacherCache,
@@ -85,6 +88,7 @@ export function policyEnvFromProcess(): PolicyEnv {
     teacherApiKey: process.env.TEACHER_API_KEY || undefined,
     teacherExtraBody: parseExtraBody(process.env.TEACHER_EXTRA_BODY),
     teacherMaxRetries: process.env.TEACHER_MAX_RETRIES ? Number(process.env.TEACHER_MAX_RETRIES) : undefined,
+    teacherLogprobs: process.env.TEACHER_LOGPROBS === "1",
   };
 }
 

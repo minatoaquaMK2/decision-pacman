@@ -66,7 +66,7 @@ export function buildChatRequest(cfg: LlmConfig, enc: EncodedDecision): object {
   };
 }
 
-interface TokenLogprob {
+export interface TokenLogprob {
   token: string;
   logprob: number;
   top_logprobs?: { token: string; logprob: number }[];

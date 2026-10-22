@@ -159,6 +159,7 @@ async function main() {
               : {}),
             label: label.choice,
             values: label.values ?? null,
+            ...(label.probabilities ? { label_probs: label.probabilities } : {}),
             reason: label.reason ?? null,
             label_latency_ms: Math.round(label.latencyMs),
             ...(label.cached ? { label_cached: true } : {}),

@@ -123,6 +123,26 @@ describe("teacher on a hosted API", () => {
   });
 });
 
+describe("teacher option probabilities", () => {
+  it("reads each option's probability at the move token when asked for logprobs", async () => {
+    let body: Record<string, unknown> = {};
+    const content = '{"move": "back", "reason": "r"}';
+    const tokens = ['{"', "move", '":', ' "', "back", '",'].map((token) => ({ token, logprob: -0.1 }));
+    tokens[4] = { token: "back", logprob: Math.log(0.6), top_logprobs: [{ token: "back", logprob: Math.log(0.6) }, { token: "up", logprob: Math.log(0.3) }, { token: "}", logprob: Math.log(0.1) }] } as never;
+    const fetchFn = (async (_url: string, init: RequestInit) => {
+      body = JSON.parse(String(init.body));
+      return new Response(JSON.stringify({ choices: [{ message: { content }, logprobs: { content: tokens } }] }));
+    }) as unknown as typeof fetch;
+    const s = createGame(1);
+    while (s.phase !== "playing") step(s);
+    const enc = ENCODERS.features.encode(s, findDecisionPoint(s));
+    const d = await teacherPolicy({ baseUrl: "http://teacher.invalid/v1", model: "m", logprobs: true, fetchFn }).decide(enc, undefined, s);
+    expect(body.logprobs).toBe(true);
+    expect(d.probabilities?.back).toBeCloseTo(0.6 / 0.9, 6);
+    if (enc.keys.includes("up")) expect(d.probabilities?.up).toBeCloseTo(0.3 / 0.9, 6);
+  });
+});
+
 describe("teacher connection reuse", () => {
   const closed = () => new TypeError("fetch failed", { cause: Object.assign(new Error("other side closed"), { code: "UND_ERR_SOCKET" }) });
   const reply = () => new Response(JSON.stringify({ choices: [{ message: { content: '{"move": "back", "reason": "r"}' } }] }));

@@ -7,7 +7,9 @@
 Each row holds the chat messages Ollama would score, the option keys in
 letter order, a target distribution, and the label. With --target values the
 target is a softmax of the labeler's per-option values (the oracle's) divided
-by the temperature. With --target label it is the record's label (for example
+by the temperature. With --target probs it is the record's label_probs (the
+teacher's own per-option probabilities, recorded with TEACHER_LOGPROBS=1),
+renormalized over the options. With --target label it is the record's label (for example
 the move a chat-model teacher answered), with --smoothing spread evenly over
 the other options. --encoder picks an encoding stored under "alt" by
 gen_teacher_data.ts --also-encode instead of the record's own. Exact duplicate
@@ -55,6 +57,12 @@ def encoding(r: dict, encoder: str | None) -> dict:
 def make_target(r: dict, keys: list[str], kind: str, temperature: float, smoothing: float) -> list[float] | None:
     if kind == "values":
         return soft_target(r["values"], keys, temperature) if r.get("values") else None
+    if kind == "probs":
+        probs = r.get("label_probs")
+        if not probs or sum(probs.get(k, 0.0) for k in keys) <= 0:
+            return None
+        total = sum(probs.get(k, 0.0) for k in keys)
+        return [round(probs.get(k, 0.0) / total, 6) for k in keys]
     if kind == "label":
         return label_target(r["label"], keys, smoothing) if r.get("label") in keys else None
     raise ValueError(f"unknown target kind {kind}")
@@ -95,7 +103,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--data", default="data/v1")
     ap.add_argument("--out", default="data/sft")
-    ap.add_argument("--target", choices=["values", "label"], default="values")
+    ap.add_argument("--target", choices=["values", "label", "probs"], default="values")
     ap.add_argument("--encoder", default=None, help="use this encoding from the record's alt field")
     ap.add_argument("--temperature", type=float, default=50.0, help="--target values: value scale of the softmax")
     ap.add_argument("--smoothing", type=float, default=0.0, help="--target label: probability spread over the other options")
