@@ -246,6 +246,12 @@
 - Ollama, 1,000 states: own labels 63.2%, Qwen labels 59.5%, search 55.5% (published 64.4 / 61.0 / 55.9, Qwen rebuild 63.9 / 61.1 / 56.0).
 - Lockstep seeds 100-149: 390.0 pellets, 5,992 points, 5.7 ghosts (published 400.8 / 7,326 / 8.8). Realtime seeds 100-119, three students at once, p50 about 75 ms: 471.8 / 7,148 / 7.0 (published 449.6 / 8,090 / 9.9; Qwen rebuild 469.4 / 8,248 / 9.9). Fewer ghosts per realtime game than the published student: 2.85 (SE 0.72). Section 23 of `model_evaluation.md`.
 
+### 2026-10-22 (soft labels and mixed teachers)
+
+- `teacher.ts` asks for token logprobs when `TEACHER_LOGPROBS=1`, `gen-data` records `label_probs`, and `build_sft.py --target probs` trains on them. Test: `tests/teacher.test.ts`.
+- Soft relabel of the q1 seeds with Qwen3.8-27B BF16 (2 H100 replicas, 48 processes): 42 min, 55,577 requests, 11 dropped, mean top probability 0.935. Mixed labels: Qwen and DeepSeek one-hot averaged on 57,209 joined states.
+- Ollama 0.35.1, H100: lockstep 100-149 soft 393.7, mix 427.1 (published 400.8); realtime 100-119 at once soft 408.5, mix 481.1, published 440.6. Paired vs published: mix +26.3 (SE 35.1) and +40.6 (SE 31.3), soft -7.1 (SE 30.2) and -32.0 (SE 48.2). Section 24 of `model_evaluation.md`.
+
 ## Lessons Learned
 - vLLM's `allowed_token_ids` restricts sampling but not the returned log-probabilities: by default `top_logprobs` lists the top tokens of the whole vocabulary. A fine-tuned decision model puts mass on letters past the last option (D, E), which pushed real options out of the list and silently scored them 0, while the choices stayed right. Start vLLM with `--logprobs-mode processed_logprobs`, and check served probabilities against the training weights per state, not only the choices. A base-model check is not enough, because its top tokens happened to be exactly the option letters.
 - Lockstep games are not reproducible across runs on vLLM: 7 of 10 seeds diverged between a parallel and a sequential run of the same model. Compare lockstep results over several runs, and do not read a single 10-game run as exact.

@@ -628,6 +628,37 @@ What this shows:
 - The pipeline needs no change for a shared in-cluster teacher. Capping the processes kept the service's queue empty: 12 requests running and 0 waiting at every check.
 - Offline agreement does not rank these students. All three agree with either teacher's labels within 2 to 5 points, and the Qwen-trained students agree with DeepSeek's labels better than the DeepSeek student does. The labels differ mostly where options are close, and the student learns the common part.
 
+### 24. Soft labels from the teacher, and both teachers mixed
+
+Two variants of the section 22 recipe, both evaluated on Ollama 0.35.1 next to the published model.
+
+**Soft labels (`pacman-0.8b-soft-h100`).** The q1 seeds were relabeled by Qwen3.8-27B BF16 with `TEACHER_LOGPROBS=1`: the teacher asks for token logprobs, `gen-data` stores each option's probability at the move token as `label_probs`, and `build_sft.py --target probs` trains on that distribution. Labeling took 42 minutes (55,577 requests, 11 dropped). The teacher's top option averaged 0.935, and 2,234 of 57,239 training states had a top option below 0.6.
+
+**Mixed teachers (`pacman-0.8b-mix-h100`).** No relabeling. On the 57,209 training states both teachers labeled, the target is the average of the two one-hot choices: 1.0 where Qwen and DeepSeek agree (91%), 0.5 and 0.5 where they differ, with no smoothing.
+
+**Agreement**, 1,000 held-out states:
+
+| Model | Qwen's labels | DeepSeek's labels | The search |
+|---|---|---|---|
+| `pacman-0.8b-qwen` (published) | 61.0% | 64.4% | 55.9% |
+| `pacman-0.8b-soft-h100` | 60.7% | 63.3% | 56.4% |
+| `pacman-0.8b-mix-h100` | 60.4% | 63.8% | 56.4% |
+
+**In-game**, seeds 100-149 lockstep and 100-119 realtime; the three realtime runs went at the same time (p50 70 to 76 ms):
+
+| Player | Lockstep pellets / score | Realtime pellets / score / ghosts |
+|---|---|---|
+| `pacman-0.8b-qwen` | 400.8 / 7,326 | 440.6 / 8,060 / 10.3 |
+| `pacman-0.8b-soft-h100` | 393.7 / 7,155 | 408.5 / 7,307 / 8.6 |
+| `pacman-0.8b-mix-h100` | 427.1 / 8,046 | 481.1 / 8,650 / 9.8 |
+
+Paired by seed against the published model, the mixed student ate 26.3 more pellets per lockstep game (standard error 35.1) and 40.6 more in real time (31.3); the soft student ate 7.1 fewer (30.2) and 32.0 fewer (48.2).
+
+What this shows:
+
+- Neither variant separates from the published model by more than about 1.3 standard errors. The mixed student is ahead in both clocks, which is a lead worth retesting on more seeds, not a result.
+- The teacher's own probabilities did not help. With thinking off, Qwen puts 0.935 on its choice on average, so the soft targets are close to the smoothed hard labels they replace.
+
 ## Conclusions
 
 1. Use `tev1:4b` for the real-time demo. At about 160 ms, a decision is shorter than the typical 400 ms to 1.2 s Pac-Man needs to reach the next junction at arcade speed.
