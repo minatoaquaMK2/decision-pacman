@@ -656,7 +656,7 @@ Paired by seed against the published model, the mixed student ate 26.3 more pell
 
 What this shows:
 
-- Neither variant separates from the published model by more than about 1.3 standard errors. The mixed student is ahead in both clocks, which is a lead worth retesting on more seeds, not a result.
+- Neither variant separates from the published model by more than about 1.3 standard errors. Retested on the other 50 evaluation seeds (150-199), the mixed student's lockstep lead repeated (+26.7 pellets, standard error 31.5); over all 100 seeds it is +26.5 (standard error 23.5, about 1.1 standard errors), ahead on 50 of 100 seeds, with no score difference (+292 points, standard error 435). The lead stays within noise.
 - The teacher's own probabilities did not help. With thinking off, Qwen puts 0.935 on its choice on average, so the soft targets are close to the smoothed hard labels they replace.
 
 ## Conclusions

@@ -251,6 +251,7 @@
 - `teacher.ts` asks for token logprobs when `TEACHER_LOGPROBS=1`, `gen-data` records `label_probs`, and `build_sft.py --target probs` trains on them. Test: `tests/teacher.test.ts`.
 - Soft relabel of the q1 seeds with Qwen3.8-27B BF16 (2 H100 replicas, 48 processes): 42 min, 55,577 requests, 11 dropped, mean top probability 0.935. Mixed labels: Qwen and DeepSeek one-hot averaged on 57,209 joined states.
 - Ollama 0.35.1, H100: lockstep 100-149 soft 393.7, mix 427.1 (published 400.8); realtime 100-119 at once soft 408.5, mix 481.1, published 440.6. Paired vs published: mix +26.3 (SE 35.1) and +40.6 (SE 31.3), soft -7.1 (SE 30.2) and -32.0 (SE 48.2). Section 24 of `model_evaluation.md`.
+- Lockstep seeds 150-199, published and mix at once: 378.2 and 404.9 (+26.7, SE 31.5). Over seeds 100-199: +26.5 pellets (SE 23.5), ahead on 50 of 100, score +292 (SE 435).
 
 ## Lessons Learned
 - vLLM's `allowed_token_ids` restricts sampling but not the returned log-probabilities: by default `top_logprobs` lists the top tokens of the whole vocabulary. A fine-tuned decision model puts mass on letters past the last option (D, E), which pushed real options out of the list and silently scored them 0, while the choices stayed right. Start vLLM with `--logprobs-mode processed_logprobs`, and check served probabilities against the training weights per state, not only the choices. A base-model check is not enough, because its top tokens happened to be exactly the option letters.
