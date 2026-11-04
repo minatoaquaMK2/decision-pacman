@@ -22,7 +22,9 @@ export interface DecisionsConfig {
 /** The model refused, answered outside the legal options, or the reply had no usable answer. */
 export class DecisionsAnswerError extends Error {}
 
-export function buildDecisionsRequest(model: string, enc: EncodedDecision): object {
+export type ChoiceInput = Pick<EncodedDecision, "state" | "instructions" | "criteria"> & { keys: string[] };
+
+export function buildDecisionsRequest(model: string, enc: ChoiceInput): object {
   const state = typeof enc.state === "string" ? enc.state : JSON.stringify(enc.state);
   return {
     model,

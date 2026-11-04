@@ -16,7 +16,9 @@
     "record": "tsx scripts/record_demo.ts",
     "gen-data": "tsx scripts/gen_teacher_data.ts",
     "systemone-vllm": "tsx scripts/systemone_vllm.ts",
-    "render-audio": "tsx scripts/render_audio.ts"
+    "render-audio": "tsx scripts/render_audio.ts",
+    "eval:openai": "tsx scripts/eval_openai.ts",
+    "eval:decisions": "tsx scripts/eval_openai.ts"
   },
   "devDependencies": {
     "@types/node": "^26.6.3",

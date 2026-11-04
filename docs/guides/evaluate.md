@@ -45,6 +45,8 @@ The 2026-10-01 runs shared the Mac with heavy unrelated CPU load (load average 1
 
 One 10-game run is a single sample. Single games spread widely; for example, Jev's 10 games ranged from 103 to 231 pellets.
 
+Lockstep runs can also diverge on near-tie states across hardware or vLLM batch sizes (`pacman-0.8b-qwen` scored 417 on seeds 100-109 on the M3 Ultra and 401 on an H100, and parallel and sequential vLLM runs differed on 7 of 10 seeds in section 22 of [model_evaluation.md](../model_evaluation.md)). Compare close students over 50 to 100 paired seeds on the same stack.
+
 Exact repeated requests hit a cache and return 5-10x faster. Latency claims must come from fresh states.
 
 ## Reproduce each ladder row
@@ -75,6 +77,34 @@ These are listed apart from the ladder because the game waits for each answer. T
 | Qwen3.8-27B, thinking off | `npm run headless -- --policy teacher --games 3 --seed 100 --max-seconds 300 --clock lockstep` | Set `TEACHER_BASE_URL` and `TEACHER_MODEL` in `.env` (OpenAI-compatible chat endpoint) |
 | Qwen3.8-27B, thinking on | `npm run headless -- --policy teacher-think --games 3 --seed 100 --max-seconds 300 --clock lockstep` | Set `TEACHER_BASE_URL` and `TEACHER_MODEL` in `.env` (OpenAI-compatible chat endpoint) |
 | `pacman-0.8b-qwen` | `npm run headless -- --policy pacman-0.8b-qwen --games 10 --seed 100 --max-seconds 300 --clock lockstep` | Download from Hugging Face and import into Ollama ([run-models.md](run-models.md)), or train it ([distill.md](distill.md)) |
+
+## Evaluate hosted models with usage and cost accounting
+
+Set `OPENAI_API_KEY` for GPT-6 Luna or `TYPESAFE_API_KEY` for Jev in the process environment. The metered command supports `gpt-6-luna` through Decisions, `jev-1.13.0` and `jev-1.14.0` through System One, and `responses:gpt-6-luna` and `responses:gpt-6.1-terra` through Responses. It requires a new output directory for each run and defaults to the Luna Decisions route.
+
+```bash
+npm run eval:decisions -- --model gpt-6-luna --task pacman --games 10 --seed 100 --max-seconds 300 --out runs/openai-pacman
+npm run eval:decisions -- --model jev-1.13.0 --task pacman --games 10 --seed 100 --max-seconds 300 --out runs/jev-old-pacman
+npm run eval:decisions -- --model jev-1.14.0 --task pacman --games 10 --seed 100 --max-seconds 300 --out runs/jev-new-pacman
+npm run eval:decisions -- --model responses:gpt-6-luna --task pacman --games 10 --seed 100 --max-seconds 300 --out runs/luna-responses-pacman
+npm run eval:decisions -- --model responses:gpt-6.1-terra --task pacman --games 10 --seed 100 --max-seconds 300 --out runs/terra-responses-pacman
+npm run eval:decisions -- --model gpt-6-luna --task rca --input "$RCA_SYNTH_FILE" --split synthetic --out runs/openai-rca-synthetic
+npm run eval:decisions -- --model gpt-6-luna --task rca --input "$RCA_REAL_FILE" --split real --out runs/openai-rca-real
+```
+
+For Jev or Responses RCA runs, substitute the route ID and use a new output directory. The `responses:` prefix selects the evaluator route; it is not part of the model name sent to OpenAI. Responses uses strict JSON with one legal `choice`, `reasoning.effort=none`, the Standard service tier, and a 128-token output cap. It receives the same facts and criteria, with no demonstrations, tools, history, or lookahead. This tests a low-cost choice configuration, not the models' highest-reasoning capability. `eval:openai` remains an alias for the same command. The Pac-Man command uses `features`, realtime, and speed 1. Its seeds must stay within 100–199. The RCA commands read existing held-out JSONL records with `state`, `instructions`, `criteria`, `options`, `label`, `seed`, and `tick`. They validate all records before sending requests. Only facts, instructions, and the 23 legal options reach the model. Keep the RCA files private.
+
+Each run writes `requests.jsonl` and `summary.json`, plus game decisions or RCA outcomes. The request ledger retains response IDs, timing, token counts, and failures without copying input text or credentials. Summaries include the protocol, client hardware, dataset hash for RCA, completion status, errors, and cost completeness. RCA failures remain in the accuracy denominator. Its report includes per-class recall and the majority-class baseline.
+
+The defaults stop after 10,000 requests, five consecutive failures, or $1 of observed cost. Override them with `--max-requests`, `--max-consecutive-failures`, and `--max-cost-usd`. The cost threshold is checked after responses, so one in-flight request can exceed it. Requests are sequential and are not retried automatically. An interrupted run remains marked incomplete.
+
+OpenAI prices checked on 2026-11-04 are $0.10 per million uncached input tokens, $0.01 for cache reads, and $0.125 for cache writes. Decisions output is free. Both cache counts are included in total input, so the calculation is `(input - cached - written) × 0.10 + cached × 0.01 + written × 0.125`, divided by one million. See the [Decisions guide](https://developers.openai.com/api/docs/guides/decisions) and [GPT-6 Luna pricing](https://developers.openai.com/api/docs/models/gpt-6-luna).
+
+Responses has separate output charges. Luna uses the same input rates as Decisions plus $0.50/M output tokens. Terra uses $1/M uncached input, $0.05/M cache reads, $1.25/M cache writes, and $5/M output. Add `output × output_rate` to the input calculation. Reasoning tokens are a subset of output and are never charged twice. These write rates apply to the documented default 30-minute cache lifetime. See [Terra pricing](https://developers.openai.com/api/docs/models/gpt-6.1-terra) and [cache accounting](https://developers.openai.com/api/docs/guides/prompt-caching). The command does not select longer retention or Fast mode.
+
+Jev charges $0.042 per million input tokens for both versions, with free output. Its response does not report cache categories; all input is priced at the flat rate. See [Jev pricing](https://help.typesafe.ai/articles/5187202169-how-much-does-jev-cost), updated 2026-11-03. Pin versions for comparisons: on 2026-11-04, `jev-latest` resolved to `jev-1.14.0`, while explicit `jev-1.13.0` requests still worked.
+
+This is an estimate from response usage at list prices, not an invoice. Missing usage or an unanswered request makes the known cost incomplete. Include separately run connectivity checks when reporting session expense. Compare fresh API results with historical baselines only when their dates, environments, and sample counts are visible. RCA here measures classification of already prepared facts. Data preparation, investigation, and remediation are outside its measured cost.
 
 ## Other measurements
 
