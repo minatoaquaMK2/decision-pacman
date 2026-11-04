@@ -1,0 +1,3450 @@
+{
+  "date": "2026-11-04",
+  "pacman": [
+    {
+      "model": "GPT-6 Luna · Decisions",
+      "provenance": "fresh",
+      "games": 10,
+      "pellets": 235.9,
+      "latencyMs": 201,
+      "failures": 0,
+      "modelId": "gpt-6-luna"
+    },
+    {
+      "games": 10,
+      "pellets": 187.1,
+      "latencyMs": 116.4,
+      "failures": 0,
+      "model": "jev-1.13.0",
+      "modelId": "jev-1.13.0",
+      "provenance": "fresh"
+    },
+    {
+      "games": 10,
+      "pellets": 204.2,
+      "latencyMs": 101.4,
+      "failures": 0,
+      "model": "jev-1.14.0",
+      "modelId": "jev-1.14.0",
+      "provenance": "fresh"
+    },
+    {
+      "model": "GPT-6 Luna · Responses",
+      "provenance": "fresh",
+      "games": 10,
+      "pellets": 66.1,
+      "latencyMs": 6137.7,
+      "failures": 0,
+      "modelId": "responses:gpt-6-luna"
+    },
+    {
+      "model": "GPT-6.1 Terra · Responses",
+      "provenance": "fresh",
+      "games": 10,
+      "pellets": 106.6,
+      "latencyMs": 1114,
+      "failures": 0,
+      "modelId": "responses:gpt-6.1-terra"
+    },
+    {
+      "model": "GPT-6 Luna",
+      "provenance": "historical",
+      "games": 20,
+      "pellets": 237,
+      "latencyMs": 168,
+      "failures": 0,
+      "modelId": "gpt-6-luna"
+    },
+    {
+      "model": "Jev",
+      "provenance": "historical",
+      "games": 10,
+      "pellets": 178,
+      "latencyMs": 115,
+      "failures": null,
+      "modelId": "jev-1.13.0"
+    },
+    {
+      "model": "pacman-0.8b-qwen",
+      "provenance": "historical",
+      "games": 30,
+      "pellets": 425,
+      "latencyMs": 55,
+      "failures": null,
+      "modelId": "pacman-0.8b-qwen"
+    }
+  ],
+  "rca": [
+    {
+      "model": "GPT-6 Luna · Decisions",
+      "provenance": "fresh",
+      "syntheticCorrect": 283,
+      "realCorrect": 25,
+      "syntheticLatencyMs": 203.8,
+      "realLatencyMs": 215.0,
+      "syntheticFailures": 0,
+      "realFailures": 0,
+      "modelId": "gpt-6-luna"
+    },
+    {
+      "syntheticCorrect": 279,
+      "realCorrect": 20,
+      "syntheticLatencyMs": 116.6,
+      "realLatencyMs": 115.7,
+      "syntheticFailures": 0,
+      "realFailures": 0,
+      "model": "jev-1.13.0",
+      "modelId": "jev-1.13.0",
+      "provenance": "fresh"
+    },
+    {
+      "syntheticCorrect": 284,
+      "realCorrect": 21,
+      "syntheticLatencyMs": 110.6,
+      "realLatencyMs": 112.4,
+      "syntheticFailures": 0,
+      "realFailures": 0,
+      "model": "jev-1.14.0",
+      "modelId": "jev-1.14.0",
+      "provenance": "fresh"
+    },
+    {
+      "model": "GPT-6 Luna · Responses",
+      "provenance": "fresh",
+      "syntheticCorrect": 278,
+      "realCorrect": 25,
+      "syntheticLatencyMs": 997.4,
+      "realLatencyMs": 983.9,
+      "syntheticFailures": 3,
+      "realFailures": 0,
+      "modelId": "responses:gpt-6-luna"
+    },
+    {
+      "model": "GPT-6.1 Terra · Responses",
+      "provenance": "fresh",
+      "syntheticCorrect": 282,
+      "realCorrect": 31,
+      "syntheticLatencyMs": 1182.8,
+      "realLatencyMs": 1124.6,
+      "syntheticFailures": 0,
+      "realFailures": 0,
+      "modelId": "responses:gpt-6.1-terra"
+    },
+    {
+      "model": "rca-0.8b",
+      "provenance": "historical",
+      "syntheticCorrect": 313,
+      "realCorrect": 11,
+      "syntheticLatencyMs": 76,
+      "realLatencyMs": 76,
+      "syntheticFailures": null,
+      "realFailures": null,
+      "modelId": "rca-0.8b"
+    },
+    {
+      "model": "DeepSeek-V4-Flash",
+      "provenance": "historical",
+      "syntheticCorrect": 272,
+      "realCorrect": 20,
+      "syntheticLatencyMs": null,
+      "realLatencyMs": null,
+      "syntheticFailures": null,
+      "realFailures": null,
+      "modelId": "DeepSeek-V4-Flash"
+    }
+  ],
+  "syntheticN": 333,
+  "realN": 48,
+  "majorityCorrect": 34,
+  "usage": [
+    {
+      "task": "pacman",
+      "requests": 2729,
+      "inputTokens": 979627,
+      "cachedTokens": 0,
+      "cacheWriteTokens": 0,
+      "outputTokens": 0,
+      "costUsd": 0.0979627,
+      "unknownUsageRequests": 0,
+      "modelId": "gpt-6-luna",
+      "model": "GPT-6 Luna · Decisions",
+      "provider": "openai",
+      "reasoningTokens": null
+    },
+    {
+      "task": "rca_synthetic",
+      "requests": 333,
+      "inputTokens": 368136,
+      "cachedTokens": 0,
+      "cacheWriteTokens": 0,
+      "outputTokens": 0,
+      "costUsd": 0.0368136,
+      "unknownUsageRequests": 0,
+      "modelId": "gpt-6-luna",
+      "model": "GPT-6 Luna · Decisions",
+      "provider": "openai",
+      "reasoningTokens": null
+    },
+    {
+      "task": "rca_real",
+      "requests": 48,
+      "inputTokens": 45102,
+      "cachedTokens": 0,
+      "cacheWriteTokens": 0,
+      "outputTokens": 0,
+      "costUsd": 0.0045102,
+      "unknownUsageRequests": 0,
+      "modelId": "gpt-6-luna",
+      "model": "GPT-6 Luna · Decisions",
+      "provider": "openai",
+      "reasoningTokens": null
+    },
+    {
+      "task": "preflight",
+      "requests": 1,
+      "inputTokens": 118,
+      "cachedTokens": 0,
+      "cacheWriteTokens": 0,
+      "outputTokens": 0,
+      "costUsd": 1.18e-05,
+      "unknownUsageRequests": 0,
+      "modelId": "gpt-6-luna",
+      "model": "GPT-6 Luna · Decisions",
+      "provider": "openai",
+      "reasoningTokens": null
+    },
+    {
+      "requests": 3573,
+      "inputTokens": 2175518,
+      "cachedTokens": null,
+      "cacheWriteTokens": null,
+      "outputTokens": 140681,
+      "costUsd": 0.091371756,
+      "unknownUsageRequests": 0,
+      "task": "pacman",
+      "modelId": "jev-1.13.0",
+      "model": "jev-1.13.0",
+      "provider": "jev",
+      "reasoningTokens": null
+    },
+    {
+      "requests": 333,
+      "inputTokens": 538151,
+      "cachedTokens": null,
+      "cacheWriteTokens": null,
+      "outputTokens": 90603,
+      "costUsd": 0.022602342,
+      "unknownUsageRequests": 0,
+      "task": "rca_synthetic",
+      "modelId": "jev-1.13.0",
+      "model": "jev-1.13.0",
+      "provider": "jev",
+      "reasoningTokens": null
+    },
+    {
+      "requests": 48,
+      "inputTokens": 67861,
+      "cachedTokens": null,
+      "cacheWriteTokens": null,
+      "outputTokens": 12998,
+      "costUsd": 0.002850162,
+      "unknownUsageRequests": 0,
+      "task": "rca_real",
+      "modelId": "jev-1.13.0",
+      "model": "jev-1.13.0",
+      "provider": "jev",
+      "reasoningTokens": null
+    },
+    {
+      "requests": 6535,
+      "inputTokens": 3941913,
+      "cachedTokens": null,
+      "cacheWriteTokens": null,
+      "outputTokens": 256968,
+      "costUsd": 0.165560346,
+      "unknownUsageRequests": 0,
+      "task": "pacman",
+      "modelId": "jev-1.14.0",
+      "model": "jev-1.14.0",
+      "provider": "jev",
+      "reasoningTokens": null
+    },
+    {
+      "requests": 333,
+      "inputTokens": 538151,
+      "cachedTokens": null,
+      "cacheWriteTokens": null,
+      "outputTokens": 90612,
+      "costUsd": 0.022602342,
+      "unknownUsageRequests": 0,
+      "task": "rca_synthetic",
+      "modelId": "jev-1.14.0",
+      "model": "jev-1.14.0",
+      "provider": "jev",
+      "reasoningTokens": null
+    },
+    {
+      "requests": 48,
+      "inputTokens": 67861,
+      "cachedTokens": null,
+      "cacheWriteTokens": null,
+      "outputTokens": 12988,
+      "costUsd": 0.002850162,
+      "unknownUsageRequests": 0,
+      "task": "rca_real",
+      "modelId": "jev-1.14.0",
+      "model": "jev-1.14.0",
+      "provider": "jev",
+      "reasoningTokens": null
+    },
+    {
+      "task": "preflight",
+      "modelId": "jev-preflight",
+      "model": "Jev 1.13 / 1.14 / latest",
+      "provider": "jev",
+      "requests": 3,
+      "inputTokens": 903,
+      "cachedTokens": null,
+      "cacheWriteTokens": null,
+      "outputTokens": 93,
+      "costUsd": 3.7926e-05,
+      "unknownUsageRequests": 0,
+      "reasoningTokens": null
+    },
+    {
+      "modelId": "responses:gpt-6-luna",
+      "model": "GPT-6 Luna · Responses",
+      "provider": "openai",
+      "task": "pacman",
+      "requests": 80,
+      "inputTokens": 24533,
+      "cachedTokens": 0,
+      "cacheWriteTokens": 0,
+      "outputTokens": 960,
+      "reasoningTokens": 0,
+      "costUsd": 0.0029333,
+      "unknownUsageRequests": 0
+    },
+    {
+      "modelId": "responses:gpt-6-luna",
+      "model": "GPT-6 Luna · Responses",
+      "provider": "openai",
+      "task": "rca_synthetic",
+      "requests": 333,
+      "inputTokens": 379081,
+      "cachedTokens": 0,
+      "cacheWriteTokens": 350415,
+      "outputTokens": 5209,
+      "reasoningTokens": 0,
+      "costUsd": 0.049272975,
+      "unknownUsageRequests": 0
+    },
+    {
+      "modelId": "responses:gpt-6-luna",
+      "model": "GPT-6 Luna · Responses",
+      "provider": "openai",
+      "task": "rca_real",
+      "requests": 48,
+      "inputTokens": 46830,
+      "cachedTokens": 0,
+      "cacheWriteTokens": 10534,
+      "outputTokens": 679,
+      "reasoningTokens": 0,
+      "costUsd": 0.00528585,
+      "unknownUsageRequests": 0
+    },
+    {
+      "modelId": "responses:gpt-6-luna",
+      "model": "GPT-6 Luna · Responses",
+      "provider": "openai",
+      "task": "preflight",
+      "requests": 1,
+      "inputTokens": 81,
+      "cachedTokens": 0,
+      "cacheWriteTokens": 0,
+      "outputTokens": 12,
+      "reasoningTokens": 0,
+      "costUsd": 1.41e-05,
+      "unknownUsageRequests": 0
+    },
+    {
+      "modelId": "responses:gpt-6.1-terra",
+      "model": "GPT-6.1 Terra · Responses",
+      "provider": "openai",
+      "task": "pacman",
+      "requests": 315,
+      "inputTokens": 97659,
+      "cachedTokens": 0,
+      "cacheWriteTokens": 0,
+      "outputTokens": 3780,
+      "reasoningTokens": 0,
+      "costUsd": 0.116559,
+      "unknownUsageRequests": 0
+    },
+    {
+      "modelId": "responses:gpt-6.1-terra",
+      "model": "GPT-6.1 Terra · Responses",
+      "provider": "openai",
+      "task": "rca_synthetic",
+      "requests": 333,
+      "inputTokens": 380164,
+      "cachedTokens": 0,
+      "cacheWriteTokens": 352518,
+      "outputTokens": 5089,
+      "reasoningTokens": 0,
+      "costUsd": 0.4937385,
+      "unknownUsageRequests": 0
+    },
+    {
+      "modelId": "responses:gpt-6.1-terra",
+      "model": "GPT-6.1 Terra · Responses",
+      "provider": "openai",
+      "task": "rca_real",
+      "requests": 48,
+      "inputTokens": 46830,
+      "cachedTokens": 0,
+      "cacheWriteTokens": 10534,
+      "outputTokens": 655,
+      "reasoningTokens": 0,
+      "costUsd": 0.0527385,
+      "unknownUsageRequests": 0
+    },
+    {
+      "modelId": "responses:gpt-6.1-terra",
+      "model": "GPT-6.1 Terra · Responses",
+      "provider": "openai",
+      "task": "preflight",
+      "requests": 1,
+      "inputTokens": 81,
+      "cachedTokens": 0,
+      "cacheWriteTokens": 0,
+      "outputTokens": 12,
+      "reasoningTokens": 0,
+      "costUsd": 0.000141,
+      "unknownUsageRequests": 0
+    }
+  ],
+  "sources": {
+    "pricing": "https://developers.openai.com/api/docs/guides/decisions",
+    "cachePricing": "https://developers.openai.com/api/docs/models/gpt-6-luna",
+    "pacman": "https://github.com/minatoaquaMK2/decision-pacman/blob/master/docs/model_evaluation.md#21-openais-decisions-api-with-gpt-6-luna",
+    "rca": "https://github.com/minatoaquaMK2/baremetal-rca/blob/main/RESULTS.md",
+    "jevPricing": "https://help.typesafe.ai/articles/5187202169-how-much-does-jev-cost",
+    "promptCaching": "https://developers.openai.com/api/docs/guides/prompt-caching"
+  },
+  "models": [
+    "gpt-6-luna",
+    "jev-1.13.0",
+    "jev-1.14.0",
+    "responses:gpt-6-luna",
+    "responses:gpt-6.1-terra"
+  ],
+  "pricing": [
+    {
+      "modelId": "gpt-6-luna",
+      "model": "GPT-6 Luna · Decisions",
+      "uncached": 0.1,
+      "cached": 0.01,
+      "cacheWrite": 0.125,
+      "output": 0,
+      "source": "https://developers.openai.com/api/docs/guides/decisions"
+    },
+    {
+      "modelId": "jev-1.13.0",
+      "model": "jev-1.13.0",
+      "uncached": 0.042,
+      "cached": null,
+      "cacheWrite": null,
+      "output": 0,
+      "source": "https://help.typesafe.ai/articles/5187202169-how-much-does-jev-cost"
+    },
+    {
+      "modelId": "jev-1.14.0",
+      "model": "jev-1.14.0",
+      "uncached": 0.042,
+      "cached": null,
+      "cacheWrite": null,
+      "output": 0,
+      "source": "https://help.typesafe.ai/articles/5187202169-how-much-does-jev-cost"
+    },
+    {
+      "modelId": "responses:gpt-6-luna",
+      "model": "GPT-6 Luna · Responses",
+      "uncached": 0.1,
+      "cached": 0.01,
+      "cacheWrite": 0.125,
+      "output": 0.5,
+      "source": "https://developers.openai.com/api/docs/models/gpt-6-luna"
+    },
+    {
+      "modelId": "responses:gpt-6.1-terra",
+      "model": "GPT-6.1 Terra · Responses",
+      "uncached": 1,
+      "cached": 0.05,
+      "cacheWrite": 1.25,
+      "output": 5,
+      "source": "https://developers.openai.com/api/docs/models/gpt-6.1-terra"
+    }
+  ],
+  "evidence": {
+    "client": {
+      "client": "linux x64",
+      "logicalCpus": 8,
+      "cpu": "INTEL(R) XEON(R) GOLD 6530",
+      "node": "v24.21.0",
+      "inference": "OpenAI hosted; hardware not disclosed"
+    },
+    "runs": {
+      "gpt-6-luna": {
+        "pacman": {
+          "protocol": {
+            "encoder": "features",
+            "clock": "realtime",
+            "speed": 1,
+            "seed0": 100,
+            "gamesRequested": 10,
+            "maxSeconds": 300
+          },
+          "results": {
+            "completedGames": 10,
+            "meanPellets": 235.9,
+            "pelletsMin": 157,
+            "pelletsMax": 377,
+            "meanSeconds": 67.2,
+            "meanGameLatencyP50Ms": 201,
+            "stale": 183,
+            "failures": 0,
+            "pelletsStandardError": 20.62439224693798
+          },
+          "usage": {
+            "requests": 2729,
+            "attemptedRequests": 2729,
+            "inFlightRequests": 0,
+            "successfulRequests": 2729,
+            "failedRequests": 0,
+            "inputTokens": 979627,
+            "cachedTokens": 0,
+            "cacheWriteTokens": 0,
+            "outputTokens": 0,
+            "estimatedCostUsd": 0.0979627,
+            "unknownUsageRequests": 0,
+            "costComplete": true,
+            "latencyP50Ms": 201.08722700004,
+            "latencyP90Ms": 318.520606999984,
+            "latencyMinMs": 116.72646500001429,
+            "latencyMaxMs": 1170.1250499999999,
+            "responseModels": [
+              "gpt-6-luna"
+            ]
+          },
+          "startedAt": "2026-11-04T13:42:40.272Z",
+          "completedAt": "2026-11-04T13:52:33.534Z",
+          "games": [
+            {
+              "seed": 100,
+              "score": 2400,
+              "pellets": 224,
+              "ghostsEaten": 0,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 62,
+              "decisions": 246,
+              "failures": 0,
+              "stale": 23,
+              "latencyP50": 205,
+              "latencyP90": 328,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 101,
+              "score": 1850,
+              "pellets": 157,
+              "ghostsEaten": 1,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 42,
+              "decisions": 173,
+              "failures": 0,
+              "stale": 14,
+              "latencyP50": 201,
+              "latencyP90": 314,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 102,
+              "score": 3010,
+              "pellets": 225,
+              "ghostsEaten": 2,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 67,
+              "decisions": 276,
+              "failures": 0,
+              "stale": 11,
+              "latencyP50": 205,
+              "latencyP90": 293,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 103,
+              "score": 2260,
+              "pellets": 178,
+              "ghostsEaten": 2,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 50,
+              "decisions": 210,
+              "failures": 0,
+              "stale": 11,
+              "latencyP50": 196,
+              "latencyP90": 286,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 104,
+              "score": 2490,
+              "pellets": 197,
+              "ghostsEaten": 2,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 55,
+              "decisions": 229,
+              "failures": 0,
+              "stale": 21,
+              "latencyP50": 199,
+              "latencyP90": 319,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 105,
+              "score": 6210,
+              "pellets": 377,
+              "ghostsEaten": 6,
+              "deaths": 3,
+              "level": 2,
+              "secondsPlayed": 94,
+              "decisions": 375,
+              "failures": 0,
+              "stale": 27,
+              "latencyP50": 200,
+              "latencyP90": 326,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 106,
+              "score": 3070,
+              "pellets": 215,
+              "ghostsEaten": 3,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 62,
+              "decisions": 254,
+              "failures": 0,
+              "stale": 19,
+              "latencyP50": 196,
+              "latencyP90": 313,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 107,
+              "score": 2490,
+              "pellets": 233,
+              "ghostsEaten": 0,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 75,
+              "decisions": 306,
+              "failures": 0,
+              "stale": 16,
+              "latencyP50": 200,
+              "latencyP90": 310,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 108,
+              "score": 3970,
+              "pellets": 317,
+              "ghostsEaten": 2,
+              "deaths": 3,
+              "level": 2,
+              "secondsPlayed": 98,
+              "decisions": 397,
+              "failures": 0,
+              "stale": 21,
+              "latencyP50": 201,
+              "latencyP90": 330,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 109,
+              "score": 4320,
+              "pellets": 236,
+              "ghostsEaten": 6,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 67,
+              "decisions": 263,
+              "failures": 0,
+              "stale": 20,
+              "latencyP50": 207,
+              "latencyP90": 346,
+              "endedBy": "gameover"
+            }
+          ]
+        },
+        "rca_synthetic": {
+          "protocol": {
+            "encoder": "rca-facts",
+            "split": "synthetic",
+            "datasetSha256": "055f8f18827291fa03c9819a58556d3fc43d3a7cada6897bc10294b89a4ce51a",
+            "choices": 23,
+            "total": 333
+          },
+          "results": {
+            "total": 333,
+            "completed": 333,
+            "correct": 283,
+            "accuracy": 0.8498498498498499,
+            "failed": 0,
+            "perClass": [
+              {
+                "label": "bmc_credentials",
+                "total": 15,
+                "correct": 15,
+                "predicted": 15,
+                "recall": 1
+              },
+              {
+                "label": "bmc_unreachable",
+                "total": 14,
+                "correct": 14,
+                "predicted": 19,
+                "recall": 1
+              },
+              {
+                "label": "bmc_driver_mismatch",
+                "total": 14,
+                "correct": 12,
+                "predicted": 12,
+                "recall": 0.8571428571428571
+              },
+              {
+                "label": "bmc_firmware_bug",
+                "total": 15,
+                "correct": 15,
+                "predicted": 19,
+                "recall": 1
+              },
+              {
+                "label": "pxe_not_enabled",
+                "total": 15,
+                "correct": 10,
+                "predicted": 11,
+                "recall": 0.6666666666666666
+              },
+              {
+                "label": "boot_mac_mismatch",
+                "total": 15,
+                "correct": 15,
+                "predicted": 25,
+                "recall": 1
+              },
+              {
+                "label": "dhcp_not_reaching",
+                "total": 15,
+                "correct": 15,
+                "predicted": 29,
+                "recall": 1
+              },
+              {
+                "label": "provisioning_network_misconfig",
+                "total": 15,
+                "correct": 8,
+                "predicted": 9,
+                "recall": 0.5333333333333333
+              },
+              {
+                "label": "ramdisk_callback_blocked",
+                "total": 14,
+                "correct": 14,
+                "predicted": 19,
+                "recall": 1
+              },
+              {
+                "label": "boot_mode_mismatch",
+                "total": 13,
+                "correct": 11,
+                "predicted": 11,
+                "recall": 0.8461538461538461
+              },
+              {
+                "label": "root_device_not_found",
+                "total": 14,
+                "correct": 14,
+                "predicted": 14,
+                "recall": 1
+              },
+              {
+                "label": "raid_disk_issue",
+                "total": 15,
+                "correct": 15,
+                "predicted": 15,
+                "recall": 1
+              },
+              {
+                "label": "hardware_below_requirements",
+                "total": 15,
+                "correct": 13,
+                "predicted": 13,
+                "recall": 0.8666666666666667
+              },
+              {
+                "label": "firmware_settings_conflict",
+                "total": 14,
+                "correct": 14,
+                "predicted": 14,
+                "recall": 1
+              },
+              {
+                "label": "image_download_failed",
+                "total": 15,
+                "correct": 15,
+                "predicted": 25,
+                "recall": 1
+              },
+              {
+                "label": "image_checksum_mismatch",
+                "total": 14,
+                "correct": 14,
+                "predicted": 14,
+                "recall": 1
+              },
+              {
+                "label": "cleaning_failed",
+                "total": 15,
+                "correct": 15,
+                "predicted": 15,
+                "recall": 1
+              },
+              {
+                "label": "api_ingress_vip_dns",
+                "total": 12,
+                "correct": 10,
+                "predicted": 10,
+                "recall": 0.8333333333333334
+              },
+              {
+                "label": "bootstrap_vm_failure",
+                "total": 15,
+                "correct": 15,
+                "predicted": 15,
+                "recall": 1
+              },
+              {
+                "label": "ntp_clock_skew",
+                "total": 15,
+                "correct": 13,
+                "predicted": 13,
+                "recall": 0.8666666666666667
+              },
+              {
+                "label": "install_config_error",
+                "total": 14,
+                "correct": 2,
+                "predicted": 2,
+                "recall": 0.14285714285714285
+              },
+              {
+                "label": "operator_or_controller_failure",
+                "total": 15,
+                "correct": 13,
+                "predicted": 13,
+                "recall": 0.8666666666666667
+              },
+              {
+                "label": "product_bug",
+                "total": 15,
+                "correct": 1,
+                "predicted": 1,
+                "recall": 0.06666666666666667
+              }
+            ],
+            "macroRecall": 0.8498327759197324,
+            "majorityBaseline": {
+              "label": "bmc_credentials",
+              "correct": 15,
+              "total": 333,
+              "accuracy": 0.04504504504504504
+            },
+            "productBug": {
+              "total": 15,
+              "correct": 1,
+              "predicted": 1,
+              "accuracy": 0.06666666666666667
+            },
+            "otherClasses": {
+              "total": 318,
+              "correct": 282,
+              "accuracy": 0.8867924528301887
+            }
+          },
+          "usage": {
+            "requests": 333,
+            "attemptedRequests": 333,
+            "inFlightRequests": 0,
+            "successfulRequests": 333,
+            "failedRequests": 0,
+            "inputTokens": 368136,
+            "cachedTokens": 0,
+            "cacheWriteTokens": 0,
+            "outputTokens": 0,
+            "estimatedCostUsd": 0.0368136,
+            "unknownUsageRequests": 0,
+            "costComplete": true,
+            "latencyP50Ms": 203.79631699999982,
+            "latencyP90Ms": 335.7720840000002,
+            "latencyMinMs": 121.08255999999528,
+            "latencyMaxMs": 1248.0149200000014,
+            "responseModels": [
+              "gpt-6-luna"
+            ]
+          },
+          "startedAt": "2026-11-04T13:55:04.767Z",
+          "completedAt": "2026-11-04T13:56:22.979Z"
+        },
+        "rca_real": {
+          "protocol": {
+            "encoder": "rca-facts",
+            "split": "real",
+            "datasetSha256": "6516ef0089a4c47a182cf51c4770a1104e2c10bda4da33ca7ebac9d629ddb328",
+            "choices": 23,
+            "total": 48
+          },
+          "results": {
+            "total": 48,
+            "completed": 48,
+            "correct": 25,
+            "accuracy": 0.5208333333333334,
+            "failed": 0,
+            "perClass": [
+              {
+                "label": "product_bug",
+                "total": 34,
+                "correct": 21,
+                "predicted": 27,
+                "recall": 0.6176470588235294
+              },
+              {
+                "label": "image_download_failed",
+                "total": 1,
+                "correct": 0,
+                "predicted": 3,
+                "recall": 0
+              },
+              {
+                "label": "bmc_driver_mismatch",
+                "total": 2,
+                "correct": 1,
+                "predicted": 2,
+                "recall": 0.5
+              },
+              {
+                "label": "boot_mode_mismatch",
+                "total": 3,
+                "correct": 0,
+                "predicted": 0,
+                "recall": 0
+              },
+              {
+                "label": "operator_or_controller_failure",
+                "total": 2,
+                "correct": 1,
+                "predicted": 7,
+                "recall": 0.5
+              },
+              {
+                "label": "bmc_credentials",
+                "total": 1,
+                "correct": 0,
+                "predicted": 0,
+                "recall": 0
+              },
+              {
+                "label": "bmc_unreachable",
+                "total": 1,
+                "correct": 0,
+                "predicted": 0,
+                "recall": 0
+              },
+              {
+                "label": "provisioning_network_misconfig",
+                "total": 2,
+                "correct": 0,
+                "predicted": 0,
+                "recall": 0
+              },
+              {
+                "label": "cleaning_failed",
+                "total": 1,
+                "correct": 1,
+                "predicted": 2,
+                "recall": 1
+              },
+              {
+                "label": "ramdisk_callback_blocked",
+                "total": 1,
+                "correct": 1,
+                "predicted": 2,
+                "recall": 1
+              },
+              {
+                "label": "api_ingress_vip_dns",
+                "total": 0,
+                "correct": 0,
+                "predicted": 1,
+                "recall": null
+              },
+              {
+                "label": "bootstrap_vm_failure",
+                "total": 0,
+                "correct": 0,
+                "predicted": 1,
+                "recall": null
+              },
+              {
+                "label": "image_checksum_mismatch",
+                "total": 0,
+                "correct": 0,
+                "predicted": 2,
+                "recall": null
+              },
+              {
+                "label": "pxe_not_enabled",
+                "total": 0,
+                "correct": 0,
+                "predicted": 1,
+                "recall": null
+              }
+            ],
+            "macroRecall": 0.36176470588235293,
+            "majorityBaseline": {
+              "label": "product_bug",
+              "correct": 34,
+              "total": 48,
+              "accuracy": 0.7083333333333334
+            },
+            "productBug": {
+              "total": 34,
+              "correct": 21,
+              "predicted": 27,
+              "accuracy": 0.6176470588235294
+            },
+            "otherClasses": {
+              "total": 14,
+              "correct": 4,
+              "accuracy": 0.2857142857142857
+            }
+          },
+          "usage": {
+            "requests": 48,
+            "attemptedRequests": 48,
+            "inFlightRequests": 0,
+            "successfulRequests": 48,
+            "failedRequests": 0,
+            "inputTokens": 45102,
+            "cachedTokens": 0,
+            "cacheWriteTokens": 0,
+            "outputTokens": 0,
+            "estimatedCostUsd": 0.0045102,
+            "unknownUsageRequests": 0,
+            "costComplete": true,
+            "latencyP50Ms": 215.03654499999993,
+            "latencyP90Ms": 355.17284100000006,
+            "latencyMinMs": 136.692818,
+            "latencyMaxMs": 522.4421619999998,
+            "responseModels": [
+              "gpt-6-luna"
+            ]
+          },
+          "startedAt": "2026-11-04T13:56:24.069Z",
+          "completedAt": "2026-11-04T13:56:35.759Z"
+        }
+      },
+      "jev-1.13.0": {
+        "pacman": {
+          "protocol": {
+            "encoder": "features",
+            "clock": "realtime",
+            "speed": 1,
+            "seed0": 100,
+            "gamesRequested": 10,
+            "maxSeconds": 300
+          },
+          "results": {
+            "completedGames": 10,
+            "meanPellets": 187.1,
+            "pelletsMin": 142,
+            "pelletsMax": 234,
+            "meanSeconds": 56.2,
+            "meanGameLatencyP50Ms": 116.4,
+            "stale": 87,
+            "failures": 0,
+            "pelletsStandardError": 10.606549339388794
+          },
+          "usage": {
+            "requests": 3573,
+            "attemptedRequests": 3573,
+            "inFlightRequests": 0,
+            "successfulRequests": 3573,
+            "failedRequests": 0,
+            "inputTokens": 2175518,
+            "cachedTokens": 0,
+            "cacheWriteTokens": 0,
+            "outputTokens": 140681,
+            "estimatedCostUsd": 0.091371756,
+            "unknownUsageRequests": 0,
+            "costComplete": true,
+            "latencyP50Ms": 113.74009600000136,
+            "latencyP90Ms": 166.42815800000972,
+            "latencyMinMs": 88.99118399999861,
+            "latencyMaxMs": 533.1962380000041,
+            "responseModels": [
+              "jev-1.13.0"
+            ]
+          },
+          "startedAt": "2026-11-04T13:58:27.700Z",
+          "completedAt": "2026-11-04T14:06:02.406Z",
+          "games": [
+            {
+              "seed": 100,
+              "score": 3060,
+              "pellets": 210,
+              "ghostsEaten": 3,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 64,
+              "decisions": 438,
+              "failures": 0,
+              "stale": 9,
+              "latencyP50": 105,
+              "latencyP90": 141,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 101,
+              "score": 3210,
+              "pellets": 205,
+              "ghostsEaten": 4,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 65,
+              "decisions": 442,
+              "failures": 0,
+              "stale": 2,
+              "latencyP50": 105,
+              "latencyP90": 146,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 102,
+              "score": 2430,
+              "pellets": 207,
+              "ghostsEaten": 1,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 68,
+              "decisions": 360,
+              "failures": 0,
+              "stale": 13,
+              "latencyP50": 142,
+              "latencyP90": 238,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 103,
+              "score": 3110,
+              "pellets": 219,
+              "ghostsEaten": 3,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 54,
+              "decisions": 307,
+              "failures": 0,
+              "stale": 9,
+              "latencyP50": 130,
+              "latencyP90": 192,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 104,
+              "score": 1570,
+              "pellets": 149,
+              "ghostsEaten": 0,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 45,
+              "decisions": 289,
+              "failures": 0,
+              "stale": 8,
+              "latencyP50": 116,
+              "latencyP90": 163,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 105,
+              "score": 2420,
+              "pellets": 190,
+              "ghostsEaten": 2,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 50,
+              "decisions": 309,
+              "failures": 0,
+              "stale": 12,
+              "latencyP50": 121,
+              "latencyP90": 174,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 106,
+              "score": 2900,
+              "pellets": 234,
+              "ghostsEaten": 2,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 70,
+              "decisions": 455,
+              "failures": 0,
+              "stale": 8,
+              "latencyP50": 113,
+              "latencyP90": 155,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 107,
+              "score": 2100,
+              "pellets": 142,
+              "ghostsEaten": 2,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 46,
+              "decisions": 303,
+              "failures": 0,
+              "stale": 8,
+              "latencyP50": 111,
+              "latencyP90": 145,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 108,
+              "score": 1800,
+              "pellets": 172,
+              "ghostsEaten": 0,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 58,
+              "decisions": 384,
+              "failures": 0,
+              "stale": 11,
+              "latencyP50": 111,
+              "latencyP90": 147,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 109,
+              "score": 1470,
+              "pellets": 143,
+              "ghostsEaten": 0,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 42,
+              "decisions": 286,
+              "failures": 0,
+              "stale": 7,
+              "latencyP50": 110,
+              "latencyP90": 149,
+              "endedBy": "gameover"
+            }
+          ]
+        },
+        "rca_synthetic": {
+          "protocol": {
+            "encoder": "rca-facts",
+            "split": "synthetic",
+            "datasetSha256": "055f8f18827291fa03c9819a58556d3fc43d3a7cada6897bc10294b89a4ce51a",
+            "choices": 23,
+            "total": 333
+          },
+          "results": {
+            "total": 333,
+            "completed": 333,
+            "correct": 279,
+            "accuracy": 0.8378378378378378,
+            "failed": 0,
+            "perClass": [
+              {
+                "label": "bmc_credentials",
+                "total": 15,
+                "correct": 15,
+                "predicted": 15,
+                "recall": 1
+              },
+              {
+                "label": "bmc_unreachable",
+                "total": 14,
+                "correct": 14,
+                "predicted": 22,
+                "recall": 1
+              },
+              {
+                "label": "bmc_driver_mismatch",
+                "total": 14,
+                "correct": 12,
+                "predicted": 12,
+                "recall": 0.8571428571428571
+              },
+              {
+                "label": "bmc_firmware_bug",
+                "total": 15,
+                "correct": 15,
+                "predicted": 18,
+                "recall": 1
+              },
+              {
+                "label": "pxe_not_enabled",
+                "total": 15,
+                "correct": 9,
+                "predicted": 10,
+                "recall": 0.6
+              },
+              {
+                "label": "boot_mac_mismatch",
+                "total": 15,
+                "correct": 15,
+                "predicted": 23,
+                "recall": 1
+              },
+              {
+                "label": "dhcp_not_reaching",
+                "total": 15,
+                "correct": 15,
+                "predicted": 34,
+                "recall": 1
+              },
+              {
+                "label": "provisioning_network_misconfig",
+                "total": 15,
+                "correct": 8,
+                "predicted": 8,
+                "recall": 0.5333333333333333
+              },
+              {
+                "label": "ramdisk_callback_blocked",
+                "total": 14,
+                "correct": 14,
+                "predicted": 20,
+                "recall": 1
+              },
+              {
+                "label": "boot_mode_mismatch",
+                "total": 13,
+                "correct": 11,
+                "predicted": 12,
+                "recall": 0.8461538461538461
+              },
+              {
+                "label": "root_device_not_found",
+                "total": 14,
+                "correct": 14,
+                "predicted": 15,
+                "recall": 1
+              },
+              {
+                "label": "raid_disk_issue",
+                "total": 15,
+                "correct": 15,
+                "predicted": 15,
+                "recall": 1
+              },
+              {
+                "label": "hardware_below_requirements",
+                "total": 15,
+                "correct": 11,
+                "predicted": 11,
+                "recall": 0.7333333333333333
+              },
+              {
+                "label": "firmware_settings_conflict",
+                "total": 14,
+                "correct": 14,
+                "predicted": 14,
+                "recall": 1
+              },
+              {
+                "label": "image_download_failed",
+                "total": 15,
+                "correct": 15,
+                "predicted": 22,
+                "recall": 1
+              },
+              {
+                "label": "image_checksum_mismatch",
+                "total": 14,
+                "correct": 14,
+                "predicted": 14,
+                "recall": 1
+              },
+              {
+                "label": "cleaning_failed",
+                "total": 15,
+                "correct": 15,
+                "predicted": 15,
+                "recall": 1
+              },
+              {
+                "label": "api_ingress_vip_dns",
+                "total": 12,
+                "correct": 10,
+                "predicted": 10,
+                "recall": 0.8333333333333334
+              },
+              {
+                "label": "bootstrap_vm_failure",
+                "total": 15,
+                "correct": 15,
+                "predicted": 15,
+                "recall": 1
+              },
+              {
+                "label": "ntp_clock_skew",
+                "total": 15,
+                "correct": 13,
+                "predicted": 13,
+                "recall": 0.8666666666666667
+              },
+              {
+                "label": "install_config_error",
+                "total": 14,
+                "correct": 2,
+                "predicted": 2,
+                "recall": 0.14285714285714285
+              },
+              {
+                "label": "operator_or_controller_failure",
+                "total": 15,
+                "correct": 12,
+                "predicted": 12,
+                "recall": 0.8
+              },
+              {
+                "label": "product_bug",
+                "total": 15,
+                "correct": 1,
+                "predicted": 1,
+                "recall": 0.06666666666666667
+              }
+            ],
+            "macroRecall": 0.8382385730211818,
+            "majorityBaseline": {
+              "label": "bmc_credentials",
+              "correct": 15,
+              "total": 333,
+              "accuracy": 0.04504504504504504
+            },
+            "productBug": {
+              "total": 15,
+              "correct": 1,
+              "predicted": 1,
+              "accuracy": 0.06666666666666667
+            },
+            "otherClasses": {
+              "total": 318,
+              "correct": 278,
+              "accuracy": 0.8742138364779874
+            }
+          },
+          "usage": {
+            "requests": 333,
+            "attemptedRequests": 333,
+            "inFlightRequests": 0,
+            "successfulRequests": 333,
+            "failedRequests": 0,
+            "inputTokens": 538151,
+            "cachedTokens": 0,
+            "cacheWriteTokens": 0,
+            "outputTokens": 90603,
+            "estimatedCostUsd": 0.022602342,
+            "unknownUsageRequests": 0,
+            "costComplete": true,
+            "latencyP50Ms": 116.59886499999993,
+            "latencyP90Ms": 157.81758199999967,
+            "latencyMinMs": 99.29193799999848,
+            "latencyMaxMs": 381.8287020000007,
+            "responseModels": [
+              "jev-1.13.0"
+            ]
+          },
+          "startedAt": "2026-11-04T14:06:03.334Z",
+          "completedAt": "2026-11-04T14:06:46.487Z"
+        },
+        "rca_real": {
+          "protocol": {
+            "encoder": "rca-facts",
+            "split": "real",
+            "datasetSha256": "6516ef0089a4c47a182cf51c4770a1104e2c10bda4da33ca7ebac9d629ddb328",
+            "choices": 23,
+            "total": 48
+          },
+          "results": {
+            "total": 48,
+            "completed": 48,
+            "correct": 20,
+            "accuracy": 0.4166666666666667,
+            "failed": 0,
+            "perClass": [
+              {
+                "label": "product_bug",
+                "total": 34,
+                "correct": 15,
+                "predicted": 19,
+                "recall": 0.4411764705882353
+              },
+              {
+                "label": "image_download_failed",
+                "total": 1,
+                "correct": 0,
+                "predicted": 3,
+                "recall": 0
+              },
+              {
+                "label": "bmc_driver_mismatch",
+                "total": 2,
+                "correct": 1,
+                "predicted": 3,
+                "recall": 0.5
+              },
+              {
+                "label": "boot_mode_mismatch",
+                "total": 3,
+                "correct": 0,
+                "predicted": 0,
+                "recall": 0
+              },
+              {
+                "label": "operator_or_controller_failure",
+                "total": 2,
+                "correct": 1,
+                "predicted": 7,
+                "recall": 0.5
+              },
+              {
+                "label": "bmc_credentials",
+                "total": 1,
+                "correct": 0,
+                "predicted": 0,
+                "recall": 0
+              },
+              {
+                "label": "bmc_unreachable",
+                "total": 1,
+                "correct": 0,
+                "predicted": 2,
+                "recall": 0
+              },
+              {
+                "label": "provisioning_network_misconfig",
+                "total": 2,
+                "correct": 1,
+                "predicted": 2,
+                "recall": 0.5
+              },
+              {
+                "label": "cleaning_failed",
+                "total": 1,
+                "correct": 1,
+                "predicted": 1,
+                "recall": 1
+              },
+              {
+                "label": "ramdisk_callback_blocked",
+                "total": 1,
+                "correct": 1,
+                "predicted": 1,
+                "recall": 1
+              },
+              {
+                "label": "install_config_error",
+                "total": 0,
+                "correct": 0,
+                "predicted": 2,
+                "recall": null
+              },
+              {
+                "label": "bootstrap_vm_failure",
+                "total": 0,
+                "correct": 0,
+                "predicted": 2,
+                "recall": null
+              },
+              {
+                "label": "bmc_firmware_bug",
+                "total": 0,
+                "correct": 0,
+                "predicted": 3,
+                "recall": null
+              },
+              {
+                "label": "image_checksum_mismatch",
+                "total": 0,
+                "correct": 0,
+                "predicted": 2,
+                "recall": null
+              },
+              {
+                "label": "pxe_not_enabled",
+                "total": 0,
+                "correct": 0,
+                "predicted": 1,
+                "recall": null
+              }
+            ],
+            "macroRecall": 0.3941176470588236,
+            "majorityBaseline": {
+              "label": "product_bug",
+              "correct": 34,
+              "total": 48,
+              "accuracy": 0.7083333333333334
+            },
+            "productBug": {
+              "total": 34,
+              "correct": 15,
+              "predicted": 19,
+              "accuracy": 0.4411764705882353
+            },
+            "otherClasses": {
+              "total": 14,
+              "correct": 5,
+              "accuracy": 0.35714285714285715
+            }
+          },
+          "usage": {
+            "requests": 48,
+            "attemptedRequests": 48,
+            "inFlightRequests": 0,
+            "successfulRequests": 48,
+            "failedRequests": 0,
+            "inputTokens": 67861,
+            "cachedTokens": 0,
+            "cacheWriteTokens": 0,
+            "outputTokens": 12998,
+            "estimatedCostUsd": 0.002850162,
+            "unknownUsageRequests": 0,
+            "costComplete": true,
+            "latencyP50Ms": 115.65297899999996,
+            "latencyP90Ms": 156.73887000000013,
+            "latencyMinMs": 97.83181000000059,
+            "latencyMaxMs": 388.07940400000007,
+            "responseModels": [
+              "jev-1.13.0"
+            ]
+          },
+          "startedAt": "2026-11-04T14:06:47.367Z",
+          "completedAt": "2026-11-04T14:06:53.615Z"
+        }
+      },
+      "jev-1.14.0": {
+        "pacman": {
+          "protocol": {
+            "encoder": "features",
+            "clock": "realtime",
+            "speed": 1,
+            "seed0": 100,
+            "gamesRequested": 10,
+            "maxSeconds": 300
+          },
+          "results": {
+            "completedGames": 10,
+            "meanPellets": 204.2,
+            "pelletsMin": 157,
+            "pelletsMax": 253,
+            "meanSeconds": 91.9,
+            "meanGameLatencyP50Ms": 101.4,
+            "stale": 162,
+            "failures": 0,
+            "pelletsStandardError": 8.643301838225174
+          },
+          "usage": {
+            "requests": 6535,
+            "attemptedRequests": 6535,
+            "inFlightRequests": 0,
+            "successfulRequests": 6535,
+            "failedRequests": 0,
+            "inputTokens": 3941913,
+            "cachedTokens": 0,
+            "cacheWriteTokens": 0,
+            "outputTokens": 256968,
+            "estimatedCostUsd": 0.165560346,
+            "unknownUsageRequests": 0,
+            "costComplete": true,
+            "latencyP50Ms": 101.23324199998751,
+            "latencyP90Ms": 124.37125399999786,
+            "latencyMinMs": 85.43315299999813,
+            "latencyMaxMs": 811.5426349999616,
+            "responseModels": [
+              "jev-1.14.0"
+            ]
+          },
+          "startedAt": "2026-11-04T13:58:27.644Z",
+          "completedAt": "2026-11-04T14:10:20.995Z",
+          "games": [
+            {
+              "seed": 100,
+              "score": 2820,
+              "pellets": 206,
+              "ghostsEaten": 2,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 74,
+              "decisions": 534,
+              "failures": 0,
+              "stale": 17,
+              "latencyP50": 100,
+              "latencyP90": 119,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 101,
+              "score": 2090,
+              "pellets": 197,
+              "ghostsEaten": 0,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 70,
+              "decisions": 487,
+              "failures": 0,
+              "stale": 20,
+              "latencyP50": 103,
+              "latencyP90": 130,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 102,
+              "score": 2510,
+              "pellets": 235,
+              "ghostsEaten": 0,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 119,
+              "decisions": 816,
+              "failures": 0,
+              "stale": 12,
+              "latencyP50": 107,
+              "latencyP90": 139,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 103,
+              "score": 2330,
+              "pellets": 201,
+              "ghostsEaten": 1,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 94,
+              "decisions": 657,
+              "failures": 0,
+              "stale": 15,
+              "latencyP50": 103,
+              "latencyP90": 130,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 104,
+              "score": 1650,
+              "pellets": 157,
+              "ghostsEaten": 0,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 70,
+              "decisions": 494,
+              "failures": 0,
+              "stale": 14,
+              "latencyP50": 103,
+              "latencyP90": 131,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 105,
+              "score": 4090,
+              "pellets": 253,
+              "ghostsEaten": 5,
+              "deaths": 3,
+              "level": 2,
+              "secondsPlayed": 136,
+              "decisions": 970,
+              "failures": 0,
+              "stale": 14,
+              "latencyP50": 102,
+              "latencyP90": 122,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 106,
+              "score": 3370,
+              "pellets": 221,
+              "ghostsEaten": 4,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 93,
+              "decisions": 678,
+              "failures": 0,
+              "stale": 9,
+              "latencyP50": 98,
+              "latencyP90": 116,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 107,
+              "score": 2960,
+              "pellets": 204,
+              "ghostsEaten": 3,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 79,
+              "decisions": 570,
+              "failures": 0,
+              "stale": 17,
+              "latencyP50": 100,
+              "latencyP90": 120,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 108,
+              "score": 2150,
+              "pellets": 183,
+              "ghostsEaten": 1,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 106,
+              "decisions": 769,
+              "failures": 0,
+              "stale": 34,
+              "latencyP50": 100,
+              "latencyP90": 118,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 109,
+              "score": 4210,
+              "pellets": 185,
+              "ghostsEaten": 6,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 78,
+              "decisions": 560,
+              "failures": 0,
+              "stale": 10,
+              "latencyP50": 98,
+              "latencyP90": 118,
+              "endedBy": "gameover"
+            }
+          ]
+        },
+        "rca_synthetic": {
+          "protocol": {
+            "encoder": "rca-facts",
+            "split": "synthetic",
+            "datasetSha256": "055f8f18827291fa03c9819a58556d3fc43d3a7cada6897bc10294b89a4ce51a",
+            "choices": 23,
+            "total": 333
+          },
+          "results": {
+            "total": 333,
+            "completed": 333,
+            "correct": 284,
+            "accuracy": 0.8528528528528528,
+            "failed": 0,
+            "perClass": [
+              {
+                "label": "bmc_credentials",
+                "total": 15,
+                "correct": 15,
+                "predicted": 15,
+                "recall": 1
+              },
+              {
+                "label": "bmc_unreachable",
+                "total": 14,
+                "correct": 14,
+                "predicted": 20,
+                "recall": 1
+              },
+              {
+                "label": "bmc_driver_mismatch",
+                "total": 14,
+                "correct": 11,
+                "predicted": 11,
+                "recall": 0.7857142857142857
+              },
+              {
+                "label": "bmc_firmware_bug",
+                "total": 15,
+                "correct": 15,
+                "predicted": 18,
+                "recall": 1
+              },
+              {
+                "label": "pxe_not_enabled",
+                "total": 15,
+                "correct": 10,
+                "predicted": 10,
+                "recall": 0.6666666666666666
+              },
+              {
+                "label": "boot_mac_mismatch",
+                "total": 15,
+                "correct": 15,
+                "predicted": 23,
+                "recall": 1
+              },
+              {
+                "label": "dhcp_not_reaching",
+                "total": 15,
+                "correct": 15,
+                "predicted": 31,
+                "recall": 1
+              },
+              {
+                "label": "provisioning_network_misconfig",
+                "total": 15,
+                "correct": 10,
+                "predicted": 14,
+                "recall": 0.6666666666666666
+              },
+              {
+                "label": "ramdisk_callback_blocked",
+                "total": 14,
+                "correct": 13,
+                "predicted": 17,
+                "recall": 0.9285714285714286
+              },
+              {
+                "label": "boot_mode_mismatch",
+                "total": 13,
+                "correct": 11,
+                "predicted": 11,
+                "recall": 0.8461538461538461
+              },
+              {
+                "label": "root_device_not_found",
+                "total": 14,
+                "correct": 14,
+                "predicted": 15,
+                "recall": 1
+              },
+              {
+                "label": "raid_disk_issue",
+                "total": 15,
+                "correct": 15,
+                "predicted": 15,
+                "recall": 1
+              },
+              {
+                "label": "hardware_below_requirements",
+                "total": 15,
+                "correct": 12,
+                "predicted": 12,
+                "recall": 0.8
+              },
+              {
+                "label": "firmware_settings_conflict",
+                "total": 14,
+                "correct": 14,
+                "predicted": 14,
+                "recall": 1
+              },
+              {
+                "label": "image_download_failed",
+                "total": 15,
+                "correct": 15,
+                "predicted": 21,
+                "recall": 1
+              },
+              {
+                "label": "image_checksum_mismatch",
+                "total": 14,
+                "correct": 14,
+                "predicted": 14,
+                "recall": 1
+              },
+              {
+                "label": "cleaning_failed",
+                "total": 15,
+                "correct": 15,
+                "predicted": 15,
+                "recall": 1
+              },
+              {
+                "label": "api_ingress_vip_dns",
+                "total": 12,
+                "correct": 10,
+                "predicted": 10,
+                "recall": 0.8333333333333334
+              },
+              {
+                "label": "bootstrap_vm_failure",
+                "total": 15,
+                "correct": 15,
+                "predicted": 15,
+                "recall": 1
+              },
+              {
+                "label": "ntp_clock_skew",
+                "total": 15,
+                "correct": 13,
+                "predicted": 13,
+                "recall": 0.8666666666666667
+              },
+              {
+                "label": "install_config_error",
+                "total": 14,
+                "correct": 3,
+                "predicted": 3,
+                "recall": 0.21428571428571427
+              },
+              {
+                "label": "operator_or_controller_failure",
+                "total": 15,
+                "correct": 13,
+                "predicted": 14,
+                "recall": 0.8666666666666667
+              },
+              {
+                "label": "product_bug",
+                "total": 15,
+                "correct": 2,
+                "predicted": 2,
+                "recall": 0.13333333333333333
+              }
+            ],
+            "macroRecall": 0.8525242873068961,
+            "majorityBaseline": {
+              "label": "bmc_credentials",
+              "correct": 15,
+              "total": 333,
+              "accuracy": 0.04504504504504504
+            },
+            "productBug": {
+              "total": 15,
+              "correct": 2,
+              "predicted": 2,
+              "accuracy": 0.13333333333333333
+            },
+            "otherClasses": {
+              "total": 318,
+              "correct": 282,
+              "accuracy": 0.8867924528301887
+            }
+          },
+          "usage": {
+            "requests": 333,
+            "attemptedRequests": 333,
+            "inFlightRequests": 0,
+            "successfulRequests": 333,
+            "failedRequests": 0,
+            "inputTokens": 538151,
+            "cachedTokens": 0,
+            "cacheWriteTokens": 0,
+            "outputTokens": 90612,
+            "estimatedCostUsd": 0.022602342,
+            "unknownUsageRequests": 0,
+            "costComplete": true,
+            "latencyP50Ms": 110.60046400000283,
+            "latencyP90Ms": 130.75542399999904,
+            "latencyMinMs": 96.87977099999989,
+            "latencyMaxMs": 301.603513,
+            "responseModels": [
+              "jev-1.14.0"
+            ]
+          },
+          "startedAt": "2026-11-04T14:10:21.979Z",
+          "completedAt": "2026-11-04T14:11:01.514Z"
+        },
+        "rca_real": {
+          "protocol": {
+            "encoder": "rca-facts",
+            "split": "real",
+            "datasetSha256": "6516ef0089a4c47a182cf51c4770a1104e2c10bda4da33ca7ebac9d629ddb328",
+            "choices": 23,
+            "total": 48
+          },
+          "results": {
+            "total": 48,
+            "completed": 48,
+            "correct": 21,
+            "accuracy": 0.4375,
+            "failed": 0,
+            "perClass": [
+              {
+                "label": "product_bug",
+                "total": 34,
+                "correct": 16,
+                "predicted": 20,
+                "recall": 0.47058823529411764
+              },
+              {
+                "label": "image_download_failed",
+                "total": 1,
+                "correct": 0,
+                "predicted": 3,
+                "recall": 0
+              },
+              {
+                "label": "bmc_driver_mismatch",
+                "total": 2,
+                "correct": 1,
+                "predicted": 2,
+                "recall": 0.5
+              },
+              {
+                "label": "boot_mode_mismatch",
+                "total": 3,
+                "correct": 0,
+                "predicted": 0,
+                "recall": 0
+              },
+              {
+                "label": "operator_or_controller_failure",
+                "total": 2,
+                "correct": 1,
+                "predicted": 8,
+                "recall": 0.5
+              },
+              {
+                "label": "bmc_credentials",
+                "total": 1,
+                "correct": 0,
+                "predicted": 0,
+                "recall": 0
+              },
+              {
+                "label": "bmc_unreachable",
+                "total": 1,
+                "correct": 0,
+                "predicted": 1,
+                "recall": 0
+              },
+              {
+                "label": "provisioning_network_misconfig",
+                "total": 2,
+                "correct": 1,
+                "predicted": 2,
+                "recall": 0.5
+              },
+              {
+                "label": "cleaning_failed",
+                "total": 1,
+                "correct": 1,
+                "predicted": 1,
+                "recall": 1
+              },
+              {
+                "label": "ramdisk_callback_blocked",
+                "total": 1,
+                "correct": 1,
+                "predicted": 1,
+                "recall": 1
+              },
+              {
+                "label": "install_config_error",
+                "total": 0,
+                "correct": 0,
+                "predicted": 2,
+                "recall": null
+              },
+              {
+                "label": "bootstrap_vm_failure",
+                "total": 0,
+                "correct": 0,
+                "predicted": 3,
+                "recall": null
+              },
+              {
+                "label": "bmc_firmware_bug",
+                "total": 0,
+                "correct": 0,
+                "predicted": 3,
+                "recall": null
+              },
+              {
+                "label": "image_checksum_mismatch",
+                "total": 0,
+                "correct": 0,
+                "predicted": 1,
+                "recall": null
+              },
+              {
+                "label": "pxe_not_enabled",
+                "total": 0,
+                "correct": 0,
+                "predicted": 1,
+                "recall": null
+              }
+            ],
+            "macroRecall": 0.3970588235294118,
+            "majorityBaseline": {
+              "label": "product_bug",
+              "correct": 34,
+              "total": 48,
+              "accuracy": 0.7083333333333334
+            },
+            "productBug": {
+              "total": 34,
+              "correct": 16,
+              "predicted": 20,
+              "accuracy": 0.47058823529411764
+            },
+            "otherClasses": {
+              "total": 14,
+              "correct": 5,
+              "accuracy": 0.35714285714285715
+            }
+          },
+          "usage": {
+            "requests": 48,
+            "attemptedRequests": 48,
+            "inFlightRequests": 0,
+            "successfulRequests": 48,
+            "failedRequests": 0,
+            "inputTokens": 67861,
+            "cachedTokens": 0,
+            "cacheWriteTokens": 0,
+            "outputTokens": 12988,
+            "estimatedCostUsd": 0.002850162,
+            "unknownUsageRequests": 0,
+            "costComplete": true,
+            "latencyP50Ms": 112.38343499999996,
+            "latencyP90Ms": 137.693354,
+            "latencyMinMs": 98.0133079999996,
+            "latencyMaxMs": 295.721201,
+            "responseModels": [
+              "jev-1.14.0"
+            ]
+          },
+          "startedAt": "2026-11-04T14:11:02.415Z",
+          "completedAt": "2026-11-04T14:11:08.262Z"
+        }
+      },
+      "responses:gpt-6-luna": {
+        "pacman": {
+          "protocol": {
+            "encoder": "features",
+            "clock": "realtime",
+            "speed": 1,
+            "seed0": 100,
+            "gamesRequested": 10,
+            "maxSeconds": 300
+          },
+          "results": {
+            "completedGames": 10,
+            "meanPellets": 66.1,
+            "pelletsMin": 7,
+            "pelletsMax": 136,
+            "meanSeconds": 39,
+            "meanGameLatencyP50Ms": 6137.7,
+            "stale": 52,
+            "failures": 0,
+            "pelletsStandardError": 13.210643856796349
+          },
+          "usage": {
+            "requests": 80,
+            "attemptedRequests": 80,
+            "inFlightRequests": 0,
+            "successfulRequests": 80,
+            "failedRequests": 0,
+            "inputTokens": 24533,
+            "cachedTokens": 0,
+            "cacheWriteTokens": 0,
+            "outputTokens": 960,
+            "reasoningTokens": 0,
+            "estimatedCostUsd": 0.0029333,
+            "unknownUsageRequests": 0,
+            "costComplete": true,
+            "latencyP50Ms": 4613.133403000014,
+            "latencyP90Ms": 13208.391828999971,
+            "latencyMinMs": 681.7603419999941,
+            "latencyMaxMs": 19938.165354999976,
+            "responseModels": [
+              "gpt-6-luna"
+            ]
+          },
+          "startedAt": "2026-11-04T14:17:27.784Z",
+          "completedAt": "2026-11-04T14:25:15.138Z",
+          "api": "responses",
+          "requestModel": "gpt-6-luna",
+          "requestSettings": {
+            "reasoningEffort": "none",
+            "serviceTier": "default",
+            "maxOutputTokens": 128,
+            "store": false,
+            "cacheWriteTtl": "30m (documented default)"
+          },
+          "games": [
+            {
+              "seed": 100,
+              "score": 820,
+              "pellets": 82,
+              "ghostsEaten": 0,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 47,
+              "decisions": 9,
+              "failures": 0,
+              "stale": 7,
+              "latencyP50": 1266,
+              "latencyP90": 12468,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 101,
+              "score": 700,
+              "pellets": 70,
+              "ghostsEaten": 0,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 39,
+              "decisions": 9,
+              "failures": 0,
+              "stale": 6,
+              "latencyP50": 6078,
+              "latencyP90": 9100,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 102,
+              "score": 320,
+              "pellets": 32,
+              "ghostsEaten": 0,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 34,
+              "decisions": 7,
+              "failures": 0,
+              "stale": 4,
+              "latencyP50": 6009,
+              "latencyP90": 14181,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 103,
+              "score": 540,
+              "pellets": 54,
+              "ghostsEaten": 0,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 37,
+              "decisions": 7,
+              "failures": 0,
+              "stale": 5,
+              "latencyP50": 7977,
+              "latencyP90": 12989,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 104,
+              "score": 1130,
+              "pellets": 89,
+              "ghostsEaten": 1,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 41,
+              "decisions": 11,
+              "failures": 0,
+              "stale": 7,
+              "latencyP50": 1384,
+              "latencyP90": 11792,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 105,
+              "score": 1060,
+              "pellets": 106,
+              "ghostsEaten": 0,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 43,
+              "decisions": 9,
+              "failures": 0,
+              "stale": 6,
+              "latencyP50": 2667,
+              "latencyP90": 14966,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 106,
+              "score": 1400,
+              "pellets": 136,
+              "ghostsEaten": 0,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 46,
+              "decisions": 15,
+              "failures": 0,
+              "stale": 7,
+              "latencyP50": 936,
+              "latencyP90": 10580,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 107,
+              "score": 780,
+              "pellets": 78,
+              "ghostsEaten": 0,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 29,
+              "decisions": 7,
+              "failures": 0,
+              "stale": 4,
+              "latencyP50": 6227,
+              "latencyP90": 12567,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 108,
+              "score": 70,
+              "pellets": 7,
+              "ghostsEaten": 0,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 37,
+              "decisions": 3,
+              "failures": 0,
+              "stale": 3,
+              "latencyP50": 15625,
+              "latencyP90": 17525,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 109,
+              "score": 70,
+              "pellets": 7,
+              "ghostsEaten": 0,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 37,
+              "decisions": 3,
+              "failures": 0,
+              "stale": 3,
+              "latencyP50": 13208,
+              "latencyP90": 13428,
+              "endedBy": "gameover"
+            }
+          ]
+        },
+        "rca_synthetic": {
+          "protocol": {
+            "encoder": "rca-facts",
+            "split": "synthetic",
+            "datasetSha256": "055f8f18827291fa03c9819a58556d3fc43d3a7cada6897bc10294b89a4ce51a",
+            "choices": 23,
+            "total": 333
+          },
+          "results": {
+            "total": 333,
+            "completed": 333,
+            "correct": 278,
+            "accuracy": 0.8348348348348348,
+            "failed": 3,
+            "perClass": [
+              {
+                "label": "bmc_credentials",
+                "total": 15,
+                "correct": 15,
+                "predicted": 15,
+                "recall": 1
+              },
+              {
+                "label": "bmc_unreachable",
+                "total": 14,
+                "correct": 14,
+                "predicted": 16,
+                "recall": 1
+              },
+              {
+                "label": "bmc_driver_mismatch",
+                "total": 14,
+                "correct": 13,
+                "predicted": 16,
+                "recall": 0.9285714285714286
+              },
+              {
+                "label": "bmc_firmware_bug",
+                "total": 15,
+                "correct": 15,
+                "predicted": 21,
+                "recall": 1
+              },
+              {
+                "label": "pxe_not_enabled",
+                "total": 15,
+                "correct": 10,
+                "predicted": 12,
+                "recall": 0.6666666666666666
+              },
+              {
+                "label": "boot_mac_mismatch",
+                "total": 15,
+                "correct": 15,
+                "predicted": 21,
+                "recall": 1
+              },
+              {
+                "label": "dhcp_not_reaching",
+                "total": 15,
+                "correct": 14,
+                "predicted": 24,
+                "recall": 0.9333333333333333
+              },
+              {
+                "label": "provisioning_network_misconfig",
+                "total": 15,
+                "correct": 9,
+                "predicted": 17,
+                "recall": 0.6
+              },
+              {
+                "label": "ramdisk_callback_blocked",
+                "total": 14,
+                "correct": 9,
+                "predicted": 11,
+                "recall": 0.6428571428571429
+              },
+              {
+                "label": "boot_mode_mismatch",
+                "total": 13,
+                "correct": 7,
+                "predicted": 7,
+                "recall": 0.5384615384615384
+              },
+              {
+                "label": "root_device_not_found",
+                "total": 14,
+                "correct": 14,
+                "predicted": 14,
+                "recall": 1
+              },
+              {
+                "label": "raid_disk_issue",
+                "total": 15,
+                "correct": 15,
+                "predicted": 16,
+                "recall": 1
+              },
+              {
+                "label": "hardware_below_requirements",
+                "total": 15,
+                "correct": 13,
+                "predicted": 13,
+                "recall": 0.8666666666666667
+              },
+              {
+                "label": "firmware_settings_conflict",
+                "total": 14,
+                "correct": 14,
+                "predicted": 16,
+                "recall": 1
+              },
+              {
+                "label": "image_download_failed",
+                "total": 15,
+                "correct": 15,
+                "predicted": 21,
+                "recall": 1
+              },
+              {
+                "label": "image_checksum_mismatch",
+                "total": 14,
+                "correct": 14,
+                "predicted": 14,
+                "recall": 1
+              },
+              {
+                "label": "cleaning_failed",
+                "total": 15,
+                "correct": 14,
+                "predicted": 14,
+                "recall": 0.9333333333333333
+              },
+              {
+                "label": "api_ingress_vip_dns",
+                "total": 12,
+                "correct": 9,
+                "predicted": 9,
+                "recall": 0.75
+              },
+              {
+                "label": "bootstrap_vm_failure",
+                "total": 15,
+                "correct": 14,
+                "predicted": 17,
+                "recall": 0.9333333333333333
+              },
+              {
+                "label": "ntp_clock_skew",
+                "total": 15,
+                "correct": 14,
+                "predicted": 14,
+                "recall": 0.9333333333333333
+              },
+              {
+                "label": "install_config_error",
+                "total": 14,
+                "correct": 3,
+                "predicted": 3,
+                "recall": 0.21428571428571427
+              },
+              {
+                "label": "operator_or_controller_failure",
+                "total": 15,
+                "correct": 14,
+                "predicted": 15,
+                "recall": 0.9333333333333333
+              },
+              {
+                "label": "product_bug",
+                "total": 15,
+                "correct": 4,
+                "predicted": 4,
+                "recall": 0.26666666666666666
+              }
+            ],
+            "macroRecall": 0.8322105430801083,
+            "majorityBaseline": {
+              "label": "bmc_credentials",
+              "correct": 15,
+              "total": 333,
+              "accuracy": 0.04504504504504504
+            },
+            "productBug": {
+              "total": 15,
+              "correct": 4,
+              "predicted": 4,
+              "accuracy": 0.26666666666666666
+            },
+            "otherClasses": {
+              "total": 318,
+              "correct": 274,
+              "accuracy": 0.8616352201257862
+            }
+          },
+          "usage": {
+            "requests": 333,
+            "attemptedRequests": 333,
+            "inFlightRequests": 0,
+            "successfulRequests": 330,
+            "failedRequests": 3,
+            "inputTokens": 379081,
+            "cachedTokens": 0,
+            "cacheWriteTokens": 350415,
+            "outputTokens": 5209,
+            "reasoningTokens": 0,
+            "estimatedCostUsd": 0.049272975,
+            "unknownUsageRequests": 0,
+            "costComplete": true,
+            "latencyP50Ms": 997.4044139999896,
+            "latencyP90Ms": 1483.2117849999922,
+            "latencyMinMs": 718.619144999946,
+            "latencyMaxMs": 3320.9343170000066,
+            "responseModels": [
+              "gpt-6-luna"
+            ]
+          },
+          "startedAt": "2026-11-04T14:25:16.046Z",
+          "completedAt": "2026-11-04T14:31:25.389Z",
+          "api": "responses",
+          "requestModel": "gpt-6-luna",
+          "requestSettings": {
+            "reasoningEffort": "none",
+            "serviceTier": "default",
+            "maxOutputTokens": 128,
+            "store": false,
+            "cacheWriteTtl": "30m (documented default)"
+          }
+        },
+        "rca_real": {
+          "protocol": {
+            "encoder": "rca-facts",
+            "split": "real",
+            "datasetSha256": "6516ef0089a4c47a182cf51c4770a1104e2c10bda4da33ca7ebac9d629ddb328",
+            "choices": 23,
+            "total": 48
+          },
+          "results": {
+            "total": 48,
+            "completed": 48,
+            "correct": 25,
+            "accuracy": 0.5208333333333334,
+            "failed": 0,
+            "perClass": [
+              {
+                "label": "product_bug",
+                "total": 34,
+                "correct": 20,
+                "predicted": 23,
+                "recall": 0.5882352941176471
+              },
+              {
+                "label": "image_download_failed",
+                "total": 1,
+                "correct": 0,
+                "predicted": 3,
+                "recall": 0
+              },
+              {
+                "label": "bmc_driver_mismatch",
+                "total": 2,
+                "correct": 1,
+                "predicted": 2,
+                "recall": 0.5
+              },
+              {
+                "label": "boot_mode_mismatch",
+                "total": 3,
+                "correct": 0,
+                "predicted": 0,
+                "recall": 0
+              },
+              {
+                "label": "operator_or_controller_failure",
+                "total": 2,
+                "correct": 1,
+                "predicted": 7,
+                "recall": 0.5
+              },
+              {
+                "label": "bmc_credentials",
+                "total": 1,
+                "correct": 0,
+                "predicted": 0,
+                "recall": 0
+              },
+              {
+                "label": "bmc_unreachable",
+                "total": 1,
+                "correct": 0,
+                "predicted": 0,
+                "recall": 0
+              },
+              {
+                "label": "provisioning_network_misconfig",
+                "total": 2,
+                "correct": 1,
+                "predicted": 1,
+                "recall": 0.5
+              },
+              {
+                "label": "cleaning_failed",
+                "total": 1,
+                "correct": 1,
+                "predicted": 1,
+                "recall": 1
+              },
+              {
+                "label": "ramdisk_callback_blocked",
+                "total": 1,
+                "correct": 1,
+                "predicted": 1,
+                "recall": 1
+              },
+              {
+                "label": "bootstrap_vm_failure",
+                "total": 0,
+                "correct": 0,
+                "predicted": 2,
+                "recall": null
+              },
+              {
+                "label": "bmc_firmware_bug",
+                "total": 0,
+                "correct": 0,
+                "predicted": 4,
+                "recall": null
+              },
+              {
+                "label": "image_checksum_mismatch",
+                "total": 0,
+                "correct": 0,
+                "predicted": 2,
+                "recall": null
+              },
+              {
+                "label": "pxe_not_enabled",
+                "total": 0,
+                "correct": 0,
+                "predicted": 1,
+                "recall": null
+              },
+              {
+                "label": "dhcp_not_reaching",
+                "total": 0,
+                "correct": 0,
+                "predicted": 1,
+                "recall": null
+              }
+            ],
+            "macroRecall": 0.4088235294117647,
+            "majorityBaseline": {
+              "label": "product_bug",
+              "correct": 34,
+              "total": 48,
+              "accuracy": 0.7083333333333334
+            },
+            "productBug": {
+              "total": 34,
+              "correct": 20,
+              "predicted": 23,
+              "accuracy": 0.5882352941176471
+            },
+            "otherClasses": {
+              "total": 14,
+              "correct": 5,
+              "accuracy": 0.35714285714285715
+            }
+          },
+          "usage": {
+            "requests": 48,
+            "attemptedRequests": 48,
+            "inFlightRequests": 0,
+            "successfulRequests": 48,
+            "failedRequests": 0,
+            "inputTokens": 46830,
+            "cachedTokens": 0,
+            "cacheWriteTokens": 10534,
+            "outputTokens": 679,
+            "reasoningTokens": 0,
+            "estimatedCostUsd": 0.00528585,
+            "unknownUsageRequests": 0,
+            "costComplete": true,
+            "latencyP50Ms": 983.8937159999987,
+            "latencyP90Ms": 1420.994165,
+            "latencyMinMs": 739.356243000002,
+            "latencyMaxMs": 1866.5545349999993,
+            "responseModels": [
+              "gpt-6-luna"
+            ]
+          },
+          "startedAt": "2026-11-04T14:31:26.274Z",
+          "completedAt": "2026-11-04T14:32:17.057Z",
+          "api": "responses",
+          "requestModel": "gpt-6-luna",
+          "requestSettings": {
+            "reasoningEffort": "none",
+            "serviceTier": "default",
+            "maxOutputTokens": 128,
+            "store": false,
+            "cacheWriteTtl": "30m (documented default)"
+          }
+        }
+      },
+      "responses:gpt-6.1-terra": {
+        "pacman": {
+          "protocol": {
+            "encoder": "features",
+            "clock": "realtime",
+            "speed": 1,
+            "seed0": 100,
+            "gamesRequested": 10,
+            "maxSeconds": 300
+          },
+          "results": {
+            "completedGames": 10,
+            "meanPellets": 106.6,
+            "pelletsMin": 86,
+            "pelletsMax": 165,
+            "meanSeconds": 35.4,
+            "meanGameLatencyP50Ms": 1114,
+            "stale": 179,
+            "failures": 0,
+            "pelletsStandardError": 7.284992183325326
+          },
+          "usage": {
+            "requests": 315,
+            "attemptedRequests": 315,
+            "inFlightRequests": 0,
+            "successfulRequests": 315,
+            "failedRequests": 0,
+            "inputTokens": 97659,
+            "cachedTokens": 0,
+            "cacheWriteTokens": 0,
+            "outputTokens": 3780,
+            "reasoningTokens": 0,
+            "estimatedCostUsd": 0.116559,
+            "unknownUsageRequests": 0,
+            "costComplete": true,
+            "latencyP50Ms": 1110.1401099999784,
+            "latencyP90Ms": 1360.1264460000093,
+            "latencyMinMs": 831.7697849999968,
+            "latencyMaxMs": 2756.262729000009,
+            "responseModels": [
+              "gpt-6.1-terra"
+            ]
+          },
+          "startedAt": "2026-11-04T14:17:27.807Z",
+          "completedAt": "2026-11-04T14:23:31.699Z",
+          "api": "responses",
+          "requestModel": "gpt-6.1-terra",
+          "requestSettings": {
+            "reasoningEffort": "none",
+            "serviceTier": "default",
+            "maxOutputTokens": 128,
+            "store": false,
+            "cacheWriteTtl": "30m (documented default)"
+          },
+          "games": [
+            {
+              "seed": 100,
+              "score": 1730,
+              "pellets": 109,
+              "ghostsEaten": 2,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 39,
+              "decisions": 31,
+              "failures": 0,
+              "stale": 17,
+              "latencyP50": 1197,
+              "latencyP90": 1509,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 101,
+              "score": 980,
+              "pellets": 94,
+              "ghostsEaten": 0,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 29,
+              "decisions": 28,
+              "failures": 0,
+              "stale": 16,
+              "latencyP50": 1067,
+              "latencyP90": 1341,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 102,
+              "score": 980,
+              "pellets": 94,
+              "ghostsEaten": 0,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 41,
+              "decisions": 35,
+              "failures": 0,
+              "stale": 17,
+              "latencyP50": 1108,
+              "latencyP90": 1354,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 103,
+              "score": 1100,
+              "pellets": 86,
+              "ghostsEaten": 1,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 27,
+              "decisions": 25,
+              "failures": 0,
+              "stale": 14,
+              "latencyP50": 1113,
+              "latencyP90": 1360,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 104,
+              "score": 1460,
+              "pellets": 122,
+              "ghostsEaten": 1,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 35,
+              "decisions": 31,
+              "failures": 0,
+              "stale": 21,
+              "latencyP50": 1122,
+              "latencyP90": 1292,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 105,
+              "score": 1230,
+              "pellets": 99,
+              "ghostsEaten": 1,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 30,
+              "decisions": 27,
+              "failures": 0,
+              "stale": 15,
+              "latencyP50": 1111,
+              "latencyP90": 1335,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 106,
+              "score": 2170,
+              "pellets": 165,
+              "ghostsEaten": 2,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 46,
+              "decisions": 41,
+              "failures": 0,
+              "stale": 24,
+              "latencyP50": 1074,
+              "latencyP90": 1281,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 107,
+              "score": 980,
+              "pellets": 94,
+              "ghostsEaten": 0,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 32,
+              "decisions": 30,
+              "failures": 0,
+              "stale": 17,
+              "latencyP50": 1072,
+              "latencyP90": 1186,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 108,
+              "score": 1130,
+              "pellets": 109,
+              "ghostsEaten": 0,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 45,
+              "decisions": 39,
+              "failures": 0,
+              "stale": 22,
+              "latencyP50": 1135,
+              "latencyP90": 1396,
+              "endedBy": "gameover"
+            },
+            {
+              "seed": 109,
+              "score": 980,
+              "pellets": 94,
+              "ghostsEaten": 0,
+              "deaths": 3,
+              "level": 1,
+              "secondsPlayed": 30,
+              "decisions": 28,
+              "failures": 0,
+              "stale": 16,
+              "latencyP50": 1141,
+              "latencyP90": 1435,
+              "endedBy": "gameover"
+            }
+          ]
+        },
+        "rca_synthetic": {
+          "protocol": {
+            "encoder": "rca-facts",
+            "split": "synthetic",
+            "datasetSha256": "055f8f18827291fa03c9819a58556d3fc43d3a7cada6897bc10294b89a4ce51a",
+            "choices": 23,
+            "total": 333
+          },
+          "results": {
+            "total": 333,
+            "completed": 333,
+            "correct": 282,
+            "accuracy": 0.8468468468468469,
+            "failed": 0,
+            "perClass": [
+              {
+                "label": "bmc_credentials",
+                "total": 15,
+                "correct": 15,
+                "predicted": 15,
+                "recall": 1
+              },
+              {
+                "label": "bmc_unreachable",
+                "total": 14,
+                "correct": 14,
+                "predicted": 18,
+                "recall": 1
+              },
+              {
+                "label": "bmc_driver_mismatch",
+                "total": 14,
+                "correct": 12,
+                "predicted": 14,
+                "recall": 0.8571428571428571
+              },
+              {
+                "label": "bmc_firmware_bug",
+                "total": 15,
+                "correct": 13,
+                "predicted": 19,
+                "recall": 0.8666666666666667
+              },
+              {
+                "label": "pxe_not_enabled",
+                "total": 15,
+                "correct": 9,
+                "predicted": 10,
+                "recall": 0.6
+              },
+              {
+                "label": "boot_mac_mismatch",
+                "total": 15,
+                "correct": 15,
+                "predicted": 21,
+                "recall": 1
+              },
+              {
+                "label": "dhcp_not_reaching",
+                "total": 15,
+                "correct": 12,
+                "predicted": 21,
+                "recall": 0.8
+              },
+              {
+                "label": "provisioning_network_misconfig",
+                "total": 15,
+                "correct": 11,
+                "predicted": 18,
+                "recall": 0.7333333333333333
+              },
+              {
+                "label": "ramdisk_callback_blocked",
+                "total": 14,
+                "correct": 13,
+                "predicted": 16,
+                "recall": 0.9285714285714286
+              },
+              {
+                "label": "boot_mode_mismatch",
+                "total": 13,
+                "correct": 11,
+                "predicted": 11,
+                "recall": 0.8461538461538461
+              },
+              {
+                "label": "root_device_not_found",
+                "total": 14,
+                "correct": 14,
+                "predicted": 14,
+                "recall": 1
+              },
+              {
+                "label": "raid_disk_issue",
+                "total": 15,
+                "correct": 15,
+                "predicted": 17,
+                "recall": 1
+              },
+              {
+                "label": "hardware_below_requirements",
+                "total": 15,
+                "correct": 12,
+                "predicted": 12,
+                "recall": 0.8
+              },
+              {
+                "label": "firmware_settings_conflict",
+                "total": 14,
+                "correct": 14,
+                "predicted": 14,
+                "recall": 1
+              },
+              {
+                "label": "image_download_failed",
+                "total": 15,
+                "correct": 15,
+                "predicted": 25,
+                "recall": 1
+              },
+              {
+                "label": "image_checksum_mismatch",
+                "total": 14,
+                "correct": 14,
+                "predicted": 14,
+                "recall": 1
+              },
+              {
+                "label": "cleaning_failed",
+                "total": 15,
+                "correct": 14,
+                "predicted": 14,
+                "recall": 0.9333333333333333
+              },
+              {
+                "label": "api_ingress_vip_dns",
+                "total": 12,
+                "correct": 11,
+                "predicted": 12,
+                "recall": 0.9166666666666666
+              },
+              {
+                "label": "bootstrap_vm_failure",
+                "total": 15,
+                "correct": 15,
+                "predicted": 15,
+                "recall": 1
+              },
+              {
+                "label": "ntp_clock_skew",
+                "total": 15,
+                "correct": 13,
+                "predicted": 13,
+                "recall": 0.8666666666666667
+              },
+              {
+                "label": "install_config_error",
+                "total": 14,
+                "correct": 3,
+                "predicted": 3,
+                "recall": 0.21428571428571427
+              },
+              {
+                "label": "operator_or_controller_failure",
+                "total": 15,
+                "correct": 15,
+                "predicted": 15,
+                "recall": 1
+              },
+              {
+                "label": "product_bug",
+                "total": 15,
+                "correct": 2,
+                "predicted": 2,
+                "recall": 0.13333333333333333
+              }
+            ],
+            "macroRecall": 0.8476588628762542,
+            "majorityBaseline": {
+              "label": "bmc_credentials",
+              "correct": 15,
+              "total": 333,
+              "accuracy": 0.04504504504504504
+            },
+            "productBug": {
+              "total": 15,
+              "correct": 2,
+              "predicted": 2,
+              "accuracy": 0.13333333333333333
+            },
+            "otherClasses": {
+              "total": 318,
+              "correct": 280,
+              "accuracy": 0.8805031446540881
+            }
+          },
+          "usage": {
+            "requests": 333,
+            "attemptedRequests": 333,
+            "inFlightRequests": 0,
+            "successfulRequests": 333,
+            "failedRequests": 0,
+            "inputTokens": 380164,
+            "cachedTokens": 0,
+            "cacheWriteTokens": 352518,
+            "outputTokens": 5089,
+            "reasoningTokens": 0,
+            "estimatedCostUsd": 0.4937385,
+            "unknownUsageRequests": 0,
+            "costComplete": true,
+            "latencyP50Ms": 1182.7637749999994,
+            "latencyP90Ms": 1488.7542969999922,
+            "latencyMinMs": 954.6272349999999,
+            "latencyMaxMs": 2391.7155440000024,
+            "responseModels": [
+              "gpt-6.1-terra"
+            ]
+          },
+          "startedAt": "2026-11-04T14:23:32.843Z",
+          "completedAt": "2026-11-04T14:30:21.122Z",
+          "api": "responses",
+          "requestModel": "gpt-6.1-terra",
+          "requestSettings": {
+            "reasoningEffort": "none",
+            "serviceTier": "default",
+            "maxOutputTokens": 128,
+            "store": false,
+            "cacheWriteTtl": "30m (documented default)"
+          }
+        },
+        "rca_real": {
+          "protocol": {
+            "encoder": "rca-facts",
+            "split": "real",
+            "datasetSha256": "6516ef0089a4c47a182cf51c4770a1104e2c10bda4da33ca7ebac9d629ddb328",
+            "choices": 23,
+            "total": 48
+          },
+          "results": {
+            "total": 48,
+            "completed": 48,
+            "correct": 31,
+            "accuracy": 0.6458333333333334,
+            "failed": 0,
+            "perClass": [
+              {
+                "label": "product_bug",
+                "total": 34,
+                "correct": 27,
+                "predicted": 34,
+                "recall": 0.7941176470588235
+              },
+              {
+                "label": "image_download_failed",
+                "total": 1,
+                "correct": 1,
+                "predicted": 2,
+                "recall": 1
+              },
+              {
+                "label": "bmc_driver_mismatch",
+                "total": 2,
+                "correct": 0,
+                "predicted": 0,
+                "recall": 0
+              },
+              {
+                "label": "boot_mode_mismatch",
+                "total": 3,
+                "correct": 0,
+                "predicted": 0,
+                "recall": 0
+              },
+              {
+                "label": "operator_or_controller_failure",
+                "total": 2,
+                "correct": 1,
+                "predicted": 6,
+                "recall": 0.5
+              },
+              {
+                "label": "bmc_credentials",
+                "total": 1,
+                "correct": 0,
+                "predicted": 0,
+                "recall": 0
+              },
+              {
+                "label": "bmc_unreachable",
+                "total": 1,
+                "correct": 0,
+                "predicted": 0,
+                "recall": 0
+              },
+              {
+                "label": "provisioning_network_misconfig",
+                "total": 2,
+                "correct": 1,
+                "predicted": 1,
+                "recall": 0.5
+              },
+              {
+                "label": "cleaning_failed",
+                "total": 1,
+                "correct": 0,
+                "predicted": 0,
+                "recall": 0
+              },
+              {
+                "label": "ramdisk_callback_blocked",
+                "total": 1,
+                "correct": 1,
+                "predicted": 2,
+                "recall": 1
+              },
+              {
+                "label": "raid_disk_issue",
+                "total": 0,
+                "correct": 0,
+                "predicted": 1,
+                "recall": null
+              },
+              {
+                "label": "pxe_not_enabled",
+                "total": 0,
+                "correct": 0,
+                "predicted": 1,
+                "recall": null
+              },
+              {
+                "label": "bmc_firmware_bug",
+                "total": 0,
+                "correct": 0,
+                "predicted": 1,
+                "recall": null
+              }
+            ],
+            "macroRecall": 0.37941176470588234,
+            "majorityBaseline": {
+              "label": "product_bug",
+              "correct": 34,
+              "total": 48,
+              "accuracy": 0.7083333333333334
+            },
+            "productBug": {
+              "total": 34,
+              "correct": 27,
+              "predicted": 34,
+              "accuracy": 0.7941176470588235
+            },
+            "otherClasses": {
+              "total": 14,
+              "correct": 4,
+              "accuracy": 0.2857142857142857
+            }
+          },
+          "usage": {
+            "requests": 48,
+            "attemptedRequests": 48,
+            "inFlightRequests": 0,
+            "successfulRequests": 48,
+            "failedRequests": 0,
+            "inputTokens": 46830,
+            "cachedTokens": 0,
+            "cacheWriteTokens": 10534,
+            "outputTokens": 655,
+            "reasoningTokens": 0,
+            "estimatedCostUsd": 0.0527385,
+            "unknownUsageRequests": 0,
+            "costComplete": true,
+            "latencyP50Ms": 1124.6392220000052,
+            "latencyP90Ms": 1524.432313,
+            "latencyMinMs": 915.3639479999999,
+            "latencyMaxMs": 2113.5463,
+            "responseModels": [
+              "gpt-6.1-terra"
+            ]
+          },
+          "startedAt": "2026-11-04T14:30:22.057Z",
+          "completedAt": "2026-11-04T14:31:19.670Z",
+          "api": "responses",
+          "requestModel": "gpt-6.1-terra",
+          "requestSettings": {
+            "reasoningEffort": "none",
+            "serviceTier": "default",
+            "maxOutputTokens": 128,
+            "store": false,
+            "cacheWriteTtl": "30m (documented default)"
+          }
+        }
+      }
+    },
+    "costBasis": "Complete API response usage at list prices, not an invoice; this session only"
+  }
+}

@@ -1,25 +1,76 @@
 {
   "meta": {
-    "title": "A 0.8B model vs Jev at Pac-Man",
-    "description": "In the same Pac-Man game, a 795 MB model eats more than twice as many pellets as Jev and runs offline on a phone. Build your own model instead of only using one."
+    "title": "Decision Model Report",
+    "description": "Validating a 37-76 ms 0.8B /v1/systemone distillation pipeline on H100 + vLLM across OpenShift/Metal3 bare-metal root-cause analysis (94.0% synthetic, 22.9% real issues) and a controlled real-time benchmark (425 vs Jev's 178)."
   },
   "nav": {
-    "lang": "中文"
+    "lang": "中文",
+    "overview": "Overview",
+    "rca": "Bare-Metal RCA",
+    "lab": "Mechanism Lab",
+    "play": "Controlled Benchmark",
+    "benchmarks": "Model Ladder",
+    "paths": "Two Paths",
+    "takeaways": "Takeaways",
+    "openai": "Hosted model evaluation"
   },
   "hero": {
-    "kicker": "A small 0.8B experiment",
-    "title": "A 0.8B model eats twice as many pellets as Jev, and runs offline on a phone",
-    "subtitle": "Same Pac-Man game, same text input. No player sees the screen, only a few lines of text.",
-    "jev_label": "Jev (hosted API)",
-    "ours_label": "Our 0.8B",
-    "jev_stat": "30 s: {pellets} pellets, {lives_lost} life lost",
-    "ours_stat": "30 s: {pellets} pellets, no lives lost",
-    "note": "One 30-second game each. Over 10 games: Jev {jev_avg} pellets on average, our 0.8B {ours_avg}.",
+    "kicker": "Conclusion First · Experimental Report on 0.8B Decision Models",
+    "title": "Decision Model Report",
+    "subtitle": "First, the right scenario (closed options and strict latency). Second, clean structured data and verified labels. Third, a disciplined training regimen that prevents overfitting. Below is our conclusion upfront, followed by experimental proof from Bare-Metal RCA (`baremetal-rca`) and our real-time control benchmark (`decision-pacman`).",
+    "kpis": {
+      "pellets_label": "Proof 1 · Right Scenario + Clean Data",
+      "pellets_delta": "Pac-Man: Base tev1:0.8b (69) & Jev (178) -> Distilled 0.8B (425) with engine features + 5s rollout labels",
+      "footprint_label": "Proof 2A · Clean Textbook RCA (333 Cases)",
+      "footprint_delta": "RCA student: 94.0% on 333 synthetic cases. Validation rose from 21.8% before training to 90.2% after training.",
+      "training_label": "Real tickets and a distribution gap",
+      "training_delta": "On 48 real GitHub issues (70.8% product_bug), rca-0.8b drops to 22.9%; teacher config labels only hit 5/14",
+      "latency_label": "Proof 3 · Over-Training Degradation",
+      "latency_delta": "Training 2 epochs vs 1 epoch raised offline val acc (63.7%) but crashed live game score (423 -> 266); JevBench 0.66 -> 0.53"
+    },
+    "jev_label": "Jev (hosted decision API)",
+    "ours_label": "Distilled 0.8B (pacman-0.8b-qwen)",
+    "jev_stat": "30 s controlled benchmark: {pellets} pellets, {lives_lost} life lost",
+    "ours_stat": "30 s controlled benchmark: {pellets} pellets, no lives lost",
+    "note": "Task A controlled benchmark (seed 100, 30 s). Over 10 seeds: Jev averages {jev_avg} pellets, our distilled 0.8B averages {ours_avg}.",
     "replay": "Replay"
   },
+  "rca": {
+    "kicker": "Experimental Proof 01 · Bare-Metal Provisioning RCA (OpenShift / Metal3 / Ironic)",
+    "title": "Bare-metal RCA scores 94.0% on synthetic cases and 22.9% on real issues",
+    "lead": "Without changing a single line of training or serving code (`build_sft.py`, `train.py`, `scripts/systemone_vllm.ts`), we applied the exact same 0.8B pipeline to triage failed OpenShift bare-metal installations across 23 root-cause classes (`bmc_credentials`, `dhcp_not_reaching`, `boot_mode_mismatch`, `api_ingress_vip_dns`, `product_bug`, etc.).",
+    "synth_badge": "Round 1A · 333 Clean Textbook Cases",
+    "synth_title": "The 0.8B student gets 313 of 333 synthetic cases right",
+    "synth_body": "Using Apache 2.0 OKD, OpenShift, and Metal3 troubleshooting documentation, a 27B model generated structured incident summaries. We used 1,128 for training and 225 for validation. LoRA training took 141 steps, about 3 minutes on one H100; validation accuracy rose from 21.8% to 90.2%. The separate synthetic evaluation contains 333 cases written by DeepSeek-V4-Flash.",
+    "synth_bar_student": "rca-0.8b (LoRA, 3 min on 1 H100)",
+    "synth_bar_deepseek": "671B MoE open-source model (zero-shot, 8 H100s)",
+    "real_badge": "Round 1B · 48 Noisy Real GitHub Issues",
+    "real_title": "The historical student gets 11 of 48 real issues right",
+    "real_body": "Of 236 closed issues from metal3-io/baremetal-operator, metal3-io/ironic-image, and openshift/installer, 77 described failures and 48 had settled root causes. One annotator labeled 34 product bugs and 14 configuration or environment failures. The historical student got 10/34 product bugs and 1/14 other cases right; DeepSeek got 15/34 and 5/14. Differences in class balance, incomplete reports, and label ambiguity may explain the gap, but their causal contributions have not been tested.",
+    "real_bar_student": "rca-0.8b on 48 settled GitHub issues",
+    "real_bar_deepseek": "671B MoE open-source model (zero-shot) on 48 issues",
+    "real_bar_audit": "671B MoE teacher with maintainer comments vs human RCA",
+    "conditions_title": "What the two tasks suggest about deployment",
+    "conditions_lead": "The game and RCA results motivate the checks below. The cause of the RCA synthetic-to-real gap remains untested.",
+    "c1_status": "Prerequisite 01 · Met in Both",
+    "c1_title": "Suitable Scenario: Closed Options & Fast Decisions",
+    "c1_body": "The decision is a legal move or one of 23 root-cause classes. The recorded 0.8B models answer these closed choices in 37–76 ms on their respective measured hardware. The 21.8% RCA figure is pretraining validation accuracy, not a Jev benchmark.",
+    "c2_status": "Prerequisite 02A · Gap on Real RCA",
+    "c2_title": "Clean Input Data: Engine Telemetry vs Human Ticket Prose",
+    "c2_body": "The game encoder computes distances and counts from the engine. Real issue summaries can omit fields and retain the reporter's guesses. Testing better input capture is a next step, not a verified remedy.",
+    "c3_status": "Prerequisite 02B · Gap on Real RCA",
+    "c3_title": "Clean Labels: Simulator Rollouts vs Noisy Teacher Labels",
+    "c3_body": "Pac-Man teacher labels use five-second rollouts. RCA real-case labels come from one annotator; a teacher reading maintainer comments agreed on only 5 of 14 configuration or environment cases. This exposes label ambiguity, but does not measure a student accuracy ceiling.",
+    "c4_status": "Training and distribution checks",
+    "c4_title": "Anti-Overfitting: Prior Alignment & Early Stopping",
+    "c4_body": "RCA training was approximately balanced, but 70.8% of real cases are product bugs. This mismatch is a possible explanation for the accuracy drop. Separately, the Pac-Man two-epoch run raised offline validation accuracy but lowered gameplay from 423 to 266 pellets.",
+    "btn_inspect": "Inspect Real OpenShift & Metal3 Incidents in the Lab ↓",
+    "btn_rca_repo": "Explore baremetal-rca repository",
+    "btn_validation": "Read full VALIDATION.md report"
+  },
   "play": {
-    "title": "Try it yourself",
-    "lead": "Same run, 30 seconds. See where you rank against the models.",
+    "title": "Why we tested Pac-Man first: a 30-second controlled benchmark",
+    "lead": "Games are not our business, but Pac-Man intersections satisfy all four conditions for Jev and /v1/systemone (closed choices, exact BFS facts, 5s simulator rollouts, and matched trajectories). Play the same 30-second seed to experience what the models receive.",
     "start": "Start",
     "eyes_toggle": "Play through the model's eyes",
     "eyes_hint": "No graphics. You only see the text lines that the models receive at each intersection.",
@@ -40,8 +91,8 @@
     "lead": "Take an ordinary open-source model with zero decision training and constrain its output. It plays about as well as Jev.",
     "jev_label": "Jev",
     "phi_label": "phi4-mini (3.8B)",
-    "chart_title": "10-game average pellets eaten",
-    "chart_note": "Off-the-shelf models and hand-crafted rules cluster between 148 and 232. Our 0.8B reaches 425. All players read the exact same text prompts.",
+    "chart_title": "Historical full-game mean pellets",
+    "chart_note": "Historical off-the-shelf models, hosted APIs, and scripted rules cluster between 148 and 237; the distilled 0.8B reaches 425. Players receive the same facts and legal choices through their respective APIs. Means aggregate different run counts.",
     "chart_labels": {
       "random": "Random",
       "tev1_08b": "tev1:0.8b",
@@ -51,14 +102,309 @@
       "greedy": "Greedy rule",
       "ours": "Our 0.8B",
       "gemma4_e4b": "gemma4:e4b",
-      "phi4_mini": "phi4-mini"
+      "phi4_mini": "phi4-mini",
+      "gpt_6_luna": "gpt-6-luna"
     },
-    "offline_title": "Replication unlocks entirely new capabilities",
-    "offline_body": "No network needed, and it runs on a phone. This is a screen recording from an iPhone.",
+    "offline_title": "Replication unlocks new deployment options",
+    "offline_body": "At 795 MB, the Q8_0 model runs completely offline on an iPhone 16 Pro Max via llama.cpp Metal at roughly 505 ms per decision step.",
     "phi_stat": "30 s: {pellets} pellets, {lives_lost} lives lost",
-    "chart_band": "off-the-shelf + rule",
+    "chart_band": "off-the-shelf + cloud API + rule",
     "unmute": "Unmute",
     "mute": "Mute"
+  },
+  "lab": {
+    "kicker": "Interactive Mechanism & Findings Lab",
+    "title": "How a 0.8B model beats frontier APIs in real time",
+    "lead": "Click any architecture node or switch junctions below to inspect the live engine data structures, `/v1/systemone` prompts, 5-second teacher rollouts, and ablation results.",
+    "roles": {
+      "engine": "Engine",
+      "encoder": "Encoder",
+      "model": "Decision Model",
+      "teacher": "Teacher",
+      "eval": "Evaluation"
+    },
+    "scenarios": {
+      "opening-fork": "Opening Fork",
+      "ghost-pinch": "Ghost Pinch",
+      "power-pellet-chase": "Power Pellet Chase",
+      "tunnel-escape": "Tunnel Escape"
+    },
+    "hardware": {
+      "m3-ultra": "M3 Ultra",
+      "rtx-5090": "RTX 5090",
+      "h100-vllm": "H100 + vLLM"
+    },
+    "ui": {
+      "reset": "Reset Lab",
+      "diagram_hint": "Click any pipeline stage (01-04) to inspect its contract and source code",
+      "input_label": "Input",
+      "output_label": "Output",
+      "scenario_label": "Junction snapshot",
+      "junction_meta": "Tile ({x}, {y}) · {dist} tiles ahead · {exits} legal exits",
+      "takeaway_label": "Engineering takeaway"
+    },
+    "ch1": {
+      "tab": "Single-Token Contract",
+      "kicker": "Chapter 01 · Protocol & Latency",
+      "title": "How `/v1/systemone` turns chat generation into 1-token scoring",
+      "question": "How much decode work does single-token scoring remove from a short JSON response?",
+      "e1": "keys",
+      "e2": "A..D",
+      "e3": "P(opt)",
+      "n1": {
+        "title": "Junction Discovery",
+        "sub": "findDecisionPoint()",
+        "body": "The 30 Hz game loop never pauses for the model. Instead, it scans ahead along Pac-Man's current corridor to find the next tile with 2 or more legal exits.",
+        "io_in": "GameState (30 Hz)",
+        "io_out": "DecisionPoint + OptionKey[]"
+      },
+      "n2": {
+        "title": "Option Letter Mapping",
+        "sub": "renderPrompt()",
+        "body": "Legal directions (`up`, `left`, `down`, `right`, `back`) are mapped to single uppercase option letters (`A`, `B`, `C`, `D`) inside Ollama's `/v1/systemone` schema.",
+        "io_in": "EncodedDecision",
+        "io_out": "Chat-templated prompt ending at answer token"
+      },
+      "n3": {
+        "title": "1-Token Logit Scoring",
+        "sub": "POST /v1/systemone",
+        "body": "Instead of decoding a 7-token JSON object (`{\"move\":\"left\"}`), the server runs one prefill forward pass, masks logits to valid option letters, and returns softmax probabilities.",
+        "io_in": "Prompt tokens (~260 tok)",
+        "io_out": "Choice + probabilities + entropy confidence"
+      },
+      "n4": {
+        "title": "Non-Blocking Turn Queue",
+        "sub": "isStillAhead()",
+        "body": "When the HTTP response returns, the agent loop verifies that Pac-Man has not yet passed the junction tile and queues the turn for exact execution at the tile center.",
+        "io_in": "PolicyDecision",
+        "io_out": "PlannedTurn at (dp.x, dp.y)"
+      },
+      "wb_latency_title": "Estimated compute components: 1 vs 7 tokens",
+      "one_token_label": "1-token scoring component estimate",
+      "seven_token_label": "7-token JSON component estimate",
+      "latency_note": "Component estimate: {prefill} ms prefill plus {decode} ms per additional token. M3 Ultra and RTX 5090 use recorded 0.8B component timings. H100 uses illustrative assumptions. These totals exclude end-to-end request overhead.",
+      "wb_probs_title": "Local rollout weights, not model probabilities",
+      "confidence_badge": "Illustrative weight confidence: {conf}",
+      "prompt_toggle": "Preview the /v1/systemone prompt; no Ollama request is sent",
+      "takeaway": "Constrained single-token logit scoring removes JSON syntax errors and saves 6 autoregressive decode steps on every junction."
+    },
+    "ch2": {
+      "tab": "Encoding & Horizon",
+      "kicker": "Chapter 02 · Representation & Physics",
+      "title": "Why compact BFS features beat ASCII maps under a 30 Hz clock",
+      "question": "Why do 0.8B to 4B models fail on ASCII grids (confidence 0.02 to 0.14) but succeed on BFS features (0.60 to 0.90)?",
+      "e1": "Int16[]",
+      "e2": "260 tok",
+      "e3": "0.42t",
+      "n1": {
+        "title": "Exact Maze BFS",
+        "sub": "distancesThrough()",
+        "body": "For each legal exit at the upcoming junction, the engine runs a breadth-first search over walkable tiles to compute exact step counts around corners and through tunnels.",
+        "io_in": "Junction (x, y) + Exit Dir",
+        "io_out": "Int16Array distance map"
+      },
+      "n2": {
+        "title": "Fact-Only Feature JSON",
+        "sub": "featuresEncoder",
+        "body": "The encoder reports pure geometric facts per exit (`ghost`, `ghost_coming`, `pellets`, `food`, `power`) without rules or verdicts, in ~260 tokens vs ~630 for `ascii-full`.",
+        "io_in": "GameState + BFS distances",
+        "io_out": "Compact JSON state (~260 tokens)"
+      },
+      "n3": {
+        "title": "Realtime Travel Budget",
+        "sub": "pacTilesPerSecond()",
+        "body": "At level 1, Pac-Man moves at 7.58 tiles per second. A 55 ms local call costs 0.42 tiles of travel; a 220 ms slow call costs 1.67 tiles and risks missing close junctions.",
+        "io_in": "Decision latency (ms)",
+        "io_out": "Tiles traveled during inference"
+      },
+      "n4": {
+        "title": "Lookahead Pipelining",
+        "sub": "findDecisionPoint(s, lookahead)",
+        "body": "When Pac-Man is within `lookahead` tiles of a junction whose turn is already planned, the loop queries the model for the junction after it so decisions arrive before arrival.",
+        "io_in": "Current position + planned turns",
+        "io_out": "Next unscheduled junction"
+      },
+      "wb_encoder_title": "Compare State Encoders at This Junction",
+      "tokens_label": "Prompt tokens",
+      "chars_label": "State chars",
+      "conf_band_label": "Observed confidence",
+      "wb_horizon_title": "Realtime Latency vs Junction Arrival Budget",
+      "status_fresh": "Arrives in time",
+      "status_stale": "Stale (missed junction)",
+      "slider_label": "Simulated model latency",
+      "speed_label": "Pac-Man speed",
+      "traveled_label": "Traveled during call",
+      "junction_dist_label": "Distance to junction",
+      "horizon_fresh_body": "Pac-Man travels {traveled} tiles during the call and reaches the junction ({dist} tiles away) with {margin} tiles to spare.",
+      "horizon_stale_body": "Pac-Man travels {traveled} tiles during the call, passing the junction ({dist} tiles away) by {margin} tiles before the answer arrives.",
+      "takeaway": "Small models should not waste capacity parsing 2D ASCII coordinates. Pre-computing exact maze distances in code raises model confidence from <0.14 to >0.60 and halves prefill tokens."
+    },
+    "ch3": {
+      "tab": "Teacher Distillation",
+      "kicker": "Chapter 03 · Teacher-Student Pipeline",
+      "title": "How 5-second teacher lookahead distills into a zero-lookahead 0.8B student",
+      "question": "How can `pacman-0.8b-qwen` score 425 pellets using only `features` when off-the-shelf models cap out at 237?",
+      "e1": "peek(5s)",
+      "e2": "54k",
+      "e3": "LoRA",
+      "n1": {
+        "title": "5-Second Engine Rollouts",
+        "sub": "peek() & rolloutValue()",
+        "body": "At labeling time only, the engine clones the state for each legal option and simulates 5 seconds (150 ticks) of greedy play against real ghost AI to observe survival and points.",
+        "io_in": "GameState + OptionKey",
+        "io_out": "PeekOutcome (dies_after_s, pellets, points)"
+      },
+      "n2": {
+        "title": "27B Teacher Labeling",
+        "sub": "teacher-peek5s",
+        "body": "Qwen3.5-27B receives both the immediate `features` and the 5-second `peek()` outcomes across 54,193 junction states, choosing moves that avoid multi-junction ghost pincers.",
+        "io_in": "features + 5s PeekOutcome",
+        "io_out": "54,193 labeled training states"
+      },
+      "n3": {
+        "title": "Information-Gap SFT",
+        "sub": "train.py",
+        "body": "The 0.8B student (`Qwen3.5-0.8B-Base`) is trained with LoRA (`r=32, alpha=64`) on `features` alone, learning to infer future danger and reward from current-state cues.",
+        "io_in": "features only (no rollout peek)",
+        "io_out": "LoRA adapter (32 min on 1 GPU)"
+      },
+      "n4": {
+        "title": "Quantized Edge Runtime",
+        "sub": "Q8_0 GGUF (795 MB)",
+        "body": "Exported to Q8_0 GGUF, the distilled 0.8B model scores 425 pellets in real time (6.2x base `tev1:0.8b`) while running in 55 ms on desktop or ~505 ms offline on iPhone.",
+        "io_in": "Merged 0.8B weights",
+        "io_out": "795 MB GGUF for Ollama & iOS"
+      },
+      "wb_title": "Student Input (`features`) vs Teacher Lookahead (`peek`)",
+      "moves_summary": "Immediate greedy rule picks '{student}' · Teacher lookahead picks '{teacher}'",
+      "horizon_unit": "rollout",
+      "col_option": "Option",
+      "col_student": "What 0.8B Student Sees at Inference (features)",
+      "col_teacher": "What 27B Teacher Saw at Labeling ({sec}s peek)",
+      "col_value": "Rollout Value",
+      "teacher_pick": "Teacher pick",
+      "takeaway": "Lookahead belongs in the training pipeline, not at inference. Giving the teacher 5-second rollouts lets a 0.8B student internalize multi-junction foresight with zero runtime search cost."
+    },
+    "ch4": {
+      "tab": "Ablations & Findings",
+      "kicker": "Chapter 04 · Sections 18-24 Findings",
+      "title": "What mattered, what was statistical noise, and what broke along the way",
+      "question": "Did soft KL targets, BF16 H100 teachers, or a 671B MoE teacher beat the 32-minute RTX 5090 baseline?",
+      "e1": "mask",
+      "e2": "99.6%",
+      "e3": "±30 SE",
+      "n1": {
+        "title": "vLLM Logprob Mask Bug",
+        "sub": "processed_logprobs",
+        "body": "In vLLM, `guided_choice` masks logits during sampling, but default `raw_logprobs` computes top-k BEFORE the mask. Out-of-option tokens (`D`, `\\n`) pushed valid options out of top-20 in 86.4% of rows until `--logprobs-mode processed_logprobs` was set.",
+        "io_in": "Full vocab logits + guided_choice",
+        "io_out": "Complete probability distribution over A..D"
+      },
+      "n2": {
+        "title": "Soft KL vs Hard CE",
+        "sub": "0.996 top-1 prob",
+        "body": "Even with exact processed logprobs, the 27B open-source teacher had a mean top-1 probability of 0.996 (exceeding 0.99 on 97.6% of states). Soft KL distillation (409) matched hard labels (425).",
+        "io_in": "Teacher probability vector",
+        "io_out": "KL loss ≈ Cross-Entropy loss"
+      },
+      "n3": {
+        "title": "6-Run Ablation Equivalence",
+        "sub": "409 to 481 pellets",
+        "body": "Across NVFP4 vs BF16, 27B vs 671B MoE open-source teachers, hard vs soft targets, and CUDA vs MLX, all 6 distilled 0.8B students landed within 10-game noise (SE ~30 pellets).",
+        "io_in": "6 teacher/hardware/loss variants",
+        "io_out": "No statistically significant gap (|z| < 1.96)"
+      },
+      "n4": {
+        "title": "The Specialization Trade-Off",
+        "sub": "JevBench 0.66 -> 0.53",
+        "body": "Fine-tuning `tev1:0.8b` exclusively on Pac-Man junctions multiplied game performance by 6.2x (69 -> 425) while reducing accuracy on 194 general decision questions from 0.66 to 0.53.",
+        "io_in": "Task-specialized 0.8B weights",
+        "io_out": "6.2x task gain vs -0.13 general accuracy"
+      },
+      "wb_mask_title": "Section 22: vLLM `raw` vs `processed_logprobs`",
+      "mode_raw": "Default raw_logprobs (top-3)",
+      "mode_processed": "processed_logprobs (masked)",
+      "mask_explain": "Suppose valid options are A, B, C, and raw token probabilities are A=49%, C=14%, D=12%, B=11%. Inspect what top-3 truncation retains:",
+      "valid_opt": "Valid option",
+      "invalid_opt": "Out-of-option token",
+      "dropped_warning": "Bug triggered: out-of-option token 'D' pushed valid option '{dropped}' out of top-3!",
+      "retained_ok": "Mask applied before top-k: all valid options ({retained}) are preserved.",
+      "wb_ablation_title": "Sections 18-24: Student Ablation Explorer (10-Game Eval)",
+      "clock_realtime": "Realtime (30 Hz)",
+      "clock_lockstep": "Lockstep (Wait)",
+      "col_variant": "Student Model",
+      "col_teacher": "Teacher / Setup",
+      "col_pellets": "Pellets (±SE)",
+      "pellets_unit": "pellets",
+      "verdict_noise": "Within 10-game noise (|z| < 1.96)",
+      "verdict_sig": "Statistically significant difference (|z| >= 1.96)",
+      "takeaway": "Once the representation (`features`) and teacher lookahead (`peek5s`) are right, a 32-minute single-GPU LoRA run captures the full gain. Switching teachers, precision, or soft targets stays within noise."
+    },
+    "ch5": {
+      "tab": "Bare-Metal RCA & Sim-to-Real",
+      "kicker": "Chapter 05 · Production Bare-Metal Infrastructure Case Study",
+      "title": "Transferring the Exact Same Pipeline to OpenShift Bare-Metal RCA",
+      "question": "What happens when we take the unchanged `decision-pacman` distillation + `/v1/systemone` pipeline and apply it to 23-class OpenShift IPI / Metal3 / Ironic provisioning failure root-cause analysis (`baremetal-rca`)?",
+      "e1": "1,128 labeled states",
+      "e2": "LoRA -> rca-0.8b",
+      "e3": "333 synth + 48 real",
+      "n1": {
+        "title": "23-Class RCA Schema",
+        "sub": "decision-pacman/teacher-v1",
+        "body": "Each OpenShift / Metal3 failure is encoded as compact JSON (`bmo_phase`, `provisioning_state`, `hardware_vendor`, `boot_mode`, `network_stack`, `symptom_primary`, `log_excerpt`) and scored across 23 lettered failure categories (`A..W`).",
+        "io_in": "BMH / Ironic / Installer logs & CR status",
+        "io_out": "JSON facts + 23 options (bmc_credentials .. product_bug)"
+      },
+      "n2": {
+        "title": "1-H100 LoRA Training",
+        "sub": "141 steps in 3 minutes",
+        "body": "Unchanged `training/build_sft.py` and `training/train.py` fine-tune `tev1-0.8b` on 1,128 27B teacher rows. Holdout validation accuracy jumps from 21.8% (zero-shot) to 90.2% in 3 minutes on 1 H100.",
+        "io_in": "1,128 labeled rows (temperature T=2.0)",
+        "io_out": "rca-0.8b merged weights (90.2% val accuracy)"
+      },
+      "n3": {
+        "title": "Synthetic Textbook Eval",
+        "sub": "94.0% vs 81.7% (671B MoE)",
+        "body": "On 333 held-out synthetic bare-metal incidents (seeds 1000-1002), the 76 ms `rca-0.8b` student reaches 94.0% top-1 accuracy (98.5% top-3), beating the 671B MoE open-source model zero-shot (81.7%) and the 27B open-source model (65.2%).",
+        "io_in": "333 held-out textbook states (22 classes)",
+        "io_out": "94.0% top-1 accuracy at 76 ms / case"
+      },
+      "n4": {
+        "title": "48 Real GitHub Issues Audit",
+        "sub": "22.9% vs 41.7% (Sim-to-Real Gap)",
+        "body": "On 48 real OpenShift, Metal3, and Ironic issues, the student scores 22.9% and DeepSeek scores 41.7%. Real cases contain 70.8% product bugs, unlike the approximately balanced training set. This class shift, incomplete reports, and label ambiguity are possible causes; no ablation has isolated their effects.",
+        "io_in": "48 real GitHub issues (34 product_bug, 14 config)",
+        "io_out": "Root-cause diagnosis of Conditions #3 & #4"
+      },
+      "case_label": "Inspect Bare-Metal Incident",
+      "cases": {
+        "synth-1000": "Synth #1000 · UCS Redfish 401",
+        "bmo-1098": "BMO #1098 · HTTP over HTTPS",
+        "installer-10108": "Installer #10108 · Dropped LB YAML",
+        "ironic-137": "Ironic #137 · Missing isolinux.bin",
+        "synth_1000_diag": "<b>In-distribution win (94.0% synthetic split).</b> Clear HTTP 401 Redfish traceback on Cisco UCS. `rca-0.8b` assigns <b>89.1%</b> probability to `bmc_credentials` in <b>76 ms</b>, matching the 671B MoE open-source model at half the latency.",
+        "bmo_1098_diag": "<b>Real config issue where the 0.8B student beats the comment-biased teacher.</b> The operator passed an `http://` BMC URL while Metal3 defaulted to HTTPS (`tls: recordHeaderError`). Both `rca-0.8b` (<b>61.6%</b>) and the zero-shot 671B MoE model pick `bmc_driver_mismatch`, whereas the teacher with comments got distracted by maintainer discussion and mislabeled it `product_bug`.",
+        "installer_10108_diag": "<b>A real product bug missed by the student.</b> An openshift/installer defect dropped loadBalancer: UserManaged while generating AgentClusterInstall. The student instead chose api_ingress_vip_dns with <b>86.9%</b> probability; DeepSeek chose product_bug. The example alone does not establish whether class balance caused the error.",
+        "ironic_137_diag": "<b>Condition #3 failure (No oracle for reporter prose).</b> The reporter omitted `boot_mode: uefi` on `redfish-virtualmedia`, causing legacy BIOS ISO build to fail on missing `isolinux.bin`, and wrongly blamed the container packaging in the issue body. Without a simulator rollout to test the config, both `rca-0.8b` (<b>80.2%</b>) and the zero-shot 671B MoE model fall for the reporter's `product_bug` theory."
+      },
+      "splits": {
+        "synthetic": "Synthetic Eval (333 cases)",
+        "real": "Real GitHub Tracker (48 issues)"
+      },
+      "wb_payload_title": "Encoded `rca-facts` Payload (`/v1/systemone` Input)",
+      "truth_badge": "Maintainer Truth · {label}",
+      "student_pick_label": "rca-0.8b (76 ms)",
+      "deepseek_pick_label": "671B MoE Open Model (145 ms)",
+      "teacher_audit_label": "Teacher + Comments",
+      "wb_probs_title": "`rca-0.8b` `/v1/systemone` Distribution ({ms} ms)",
+      "status_match": "Matches Maintainer Truth",
+      "status_gap": "Sim-to-Real / Prior Mismatch",
+      "ground_truth_tag": "Ground Truth",
+      "prior_synth_label": "Synthetic Train Prior",
+      "prior_real_label": "Real Issue Tracker Prior",
+      "config_agree_label": "Teacher Config Agreement",
+      "takeaway": "The student learns synthetic cases well, but its real-case score remains 22.9%. Test better incident inputs, representative training examples, and independently reviewed labels before concluding that this approach is ready for deployment."
+    }
   },
   "paths": {
     "title": "Need more than an off-the-shelf model? Two paths",
@@ -86,10 +432,29 @@
     "closed_title": "Closed-source services",
     "closed_body": "You use them when they work. When they fail, your only choice is switching providers.",
     "yours_title": "Your own model",
-    "yours_body": "Size, speed, cost, domain, and intelligence: you can adjust every single dial yourself.",
+    "yours_body": "Size, speed, cost, domain, and intelligence: you can adjust every single parameter yourself.",
     "quote": "Being able to build and choosing not to is very different from having no other choice.",
     "axis_speed": "speed",
     "axis_skill": "capability"
+  },
+  "takeaways": {
+    "kicker": "Bottom Line Up Front",
+    "title": "Three prerequisites for self-trained small models",
+    "lead": "Comparing a simulator benchmark (`decision-pacman`) against production infrastructure tickets (`baremetal-rca`) proves that three prerequisites must hold simultaneously.",
+    "t1_badge": "Prerequisite 01 · Right Scenario",
+    "t1_title": "Closed choices & strict latency, where off-the-shelf Jev is not enough",
+    "t1_body": "The historical Pac-Man results are 69 pellets for tev1:0.8b, 178 for Jev, and 425 for the distilled student. RCA is also a closed choice, but its 21.8% pretraining figure measures validation accuracy on a different split.",
+    "t2_badge": "Prerequisite 02 · Clean Data",
+    "t2_title": "A real-case test exposes what synthetic accuracy misses",
+    "t2_body": "Pac-Man uses engine facts and teacher labels informed by rollouts. RCA uses generated training summaries and real issue reports for evaluation. Its student scores 94.0% on synthetic cases and 22.9% on real issues. Incomplete reports, class imbalance, and ambiguous labels are possible explanations; this experiment does not isolate their effects.",
+    "t3_badge": "Prerequisite 03 · Anti-Overfitting",
+    "t3_title": "Disciplined training to prevent synthetic prior & multi-epoch overfitting",
+    "t3_body": "RCA reaches 90.2% validation accuracy and 94.0% synthetic accuracy, but 22.9% on real issues. A mismatch between training and deployment data is a hypothesis to test. In Pac-Man, training two epochs instead of one raised offline validation accuracy but lowered game score from 423 to 266.",
+    "btn_rca_repo": "Explore baremetal-rca repository",
+    "btn_validation": "Read VALIDATION.md (Cross-Domain Report)",
+    "btn_repo": "Explore decision-pacman repository",
+    "btn_model": "Download 0.8B GGUF on Hugging Face",
+    "btn_notebook": "Read the 24-section lab notebook"
   },
   "cta": {
     "title": "Ready to move from user to builder?",
@@ -99,12 +464,151 @@
   "footer": {
     "run_title": "Run it on your own machine",
     "links_title": "Project links",
-    "repo": "GitHub repository",
-    "model": "Hugging Face model",
+    "rca_repo": "baremetal-rca GitHub repository",
+    "validation": "Cross-domain VALIDATION.md report",
+    "repo": "decision-pacman GitHub repository",
+    "model": "Hugging Face 0.8B GGUF model",
     "results": "Full benchmark results",
-    "notebook": "Lab notebook: over a dozen experiments",
-    "fineprint": "Results are for this one game, 10 games per player. Realtime scores vary from run to run.",
+    "notebook": "Lab notebook: 24 experiments & ablations",
+    "fineprint": "RCA uses 333 synthetic cases and 48 real OpenShift/Metal3/Ironic issues. Historical student results use an H100. Pac-Man uses seeds 100–109, with historical averages over 10, 20, or 30 games. The dated comparison identifies the fresh OpenAI and Jev runs.",
     "copy": "Copy",
     "copied": "Copied"
+  },
+  "evaluation": {
+    "kicker": "Fresh API evaluation",
+    "title": "Decision APIs and ordinary LLMs on the same tasks",
+    "lead": "Fresh tests compare GPT-6 Luna through Decisions and Responses, GPT-6.1 Terra through Responses, and Jev 1.13.0 and 1.14.0. The fine-tuned model results remain labeled as historical measurements.",
+    "fresh": "This run",
+    "historical": "Historical",
+    "pending": "Pending",
+    "unrecorded": "Not recorded",
+    "cost_pending": "Evaluation in progress; cost is incomplete.",
+    "cost_incomplete": "{requests} requests; {unknown} have unresolved usage. This is a lower bound.",
+    "cost_complete": "{requests} requests, all with recorded usage.",
+    "cost_basis": "Calculated from response token usage at published list prices. This is an estimate, not an invoice. Only this session is included.",
+    "pacman_title": "Pac-Man full-game comparison",
+    "pacman_protocol": "Current-state features, realtime clock, 1× speed, seeds 100–109, 300-second cap. Pellets are averaged per game. Latency is the mean of per-game p50 values.",
+    "model": "Model",
+    "provenance": "Measurement",
+    "games": "Games",
+    "pellets": "Mean pellets",
+    "latency": "Latency (ms)",
+    "failures": "Failed decisions",
+    "historical_note": "All fresh tests use the same Linux client and task protocol. The Decisions run came first, then the two Jev versions ran together, followed by the two Responses models together. Network and provider load can differ between batches. Historical local runs used an M3 Ultra; hosted runs used its network path. These rows do not establish a simultaneous paired ranking or a compute-speed comparison. Historical averages include 10, 20, or 30 games.",
+    "pacman_source": "Historical Pac-Man method and results",
+    "rca_title": "RCA on the same held-out cases",
+    "rca_protocol": "One of 23 root causes, selected from facts and option descriptions. The label is withheld from the model. Synthetic cases: {synthetic}. Real issues: {real}. Failures count as incorrect.",
+    "synthetic": "Synthetic accuracy",
+    "real": "Real accuracy",
+    "synthetic_latency": "Synthetic p50 (ms)",
+    "real_latency": "Real p50 (ms)",
+    "majority_note": "Always choosing product_bug scores {accuracy} on the real set. Compare every model with this majority-class baseline.",
+    "majority_label": "Always choose product_bug",
+    "rca_limits": "Real labels come from one annotator, and most cases are product bugs. This small, skewed set cannot establish reliable per-class rankings. The inputs were already summarized. These costs cover classification only; preparation and subsequent investigation are excluded.",
+    "rca_source": "Recorded RCA baselines and dataset method",
+    "rca_bar_note": "OpenAI and both Jev versions are measured on {date}; student and DeepSeek rows are historical. All rows use the same evaluation cases. Latencies come from different serving environments.",
+    "usage_title": "Requests, tokens, and cost",
+    "task": "Task",
+    "requests": "Requests",
+    "input": "Input tokens",
+    "cache_read": "Cached reads",
+    "cache_write": "Cache writes",
+    "output": "Output tokens",
+    "cost": "Estimated USD",
+    "formula": "OpenAI cost is the sum of uncached input, cached reads, cache writes, and output tokens, each multiplied by its route's rate above and divided by 1,000,000. Cached reads and writes are subsets of input. Reasoning tokens are a subset of output and are charged only once.",
+    "usage_note": "Jev does not report cache counts, shown as N/A. Reasoning is N/A where the API does not report it. OpenAI cache-write rates shown here use the default 30-minute retention. Connectivity checks are included. Historical model costs, local compute, RCA preparation, and downstream LLM work are excluded. Pac-Man runs can issue different numbers of requests because latency and survival differ; a lower game bill does not imply cheaper equal-work inference. RCA uses a fixed number of cases.",
+    "pricing_source": "Source",
+    "cache_source": "OpenAI caching and retention pricing",
+    "tasks": {
+      "pacman": "Pac-Man",
+      "rca_synthetic": "RCA synthetic",
+      "rca_real": "RCA real issues",
+      "preflight": "Connectivity check"
+    },
+    "rca_failures": "{model} failures: {synthetic} synthetic, {real} real.",
+    "jev_formula": "Jev USD = input × 0.042 / 1,000,000. Output is free for both tested Jev versions.",
+    "provider_cost_title": "Cost by provider",
+    "provider": "Provider",
+    "not_applicable": "N/A",
+    "responses_protocol": "GPT-6.1 Luna was unavailable in the account model list, so this run uses GPT-6 Luna. Both Responses models use reasoning effort none, the standard service tier, and strict JSON with one legal choice. This measures a low-cost configuration, not each model's best possible quality.",
+    "reasoning": "Reasoning within output",
+    "rates_title": "Published USD per million tokens",
+    "uncached_rate": "Uncached input",
+    "official_pricing": "Official pricing",
+    "comparison_cost": "Cost (USD)",
+    "pacman_cost_scope": "Cost is the API total for the games in each row, excluding connectivity checks. Historical costs were not recorded.",
+    "rca_cost_scope": "Cost combines all {synthetic} synthetic and {real} real-case classification calls, excluding connectivity checks. Historical costs were not recorded."
+  },
+  "workflow": {
+    "kicker": "RCA beyond classification",
+    "title": "Classification is one part of the RCA bill",
+    "lead": "In this workflow, a decision model selects a root-cause category. LLMs still prepare evidence, investigate the incident, and explain what to do. Savings depend on how much of the original bill that single step accounts for.",
+    "stages": {
+      "evidence": {
+        "owner": "Input",
+        "title": "Collect evidence",
+        "body": "Logs, metrics, incident history, and system state."
+      },
+      "prepare": {
+        "owner": "LLM · optional extra work",
+        "title": "Prepare the input",
+        "body": "Triage, summarize, or structure evidence for the classifier. Extra calls add cost."
+      },
+      "classify": {
+        "owner": "Decision model",
+        "title": "Choose a category",
+        "body": "Select one of the 23 root-cause options from prepared facts."
+      },
+      "investigate": {
+        "owner": "LLM",
+        "title": "Analyze the cause",
+        "body": "Test hypotheses, connect evidence, and explain why the failure happened."
+      },
+      "resolve": {
+        "owner": "LLM + tools",
+        "title": "Resolve and verify",
+        "body": "Propose a fix, check the outcome, and write the incident report."
+      }
+    },
+    "measured_scope": "Measured in this benchmark",
+    "evidence_path": "Original evidence may still need to reach the downstream LLM. A category or summary does not replace the logs needed for investigation.",
+    "diagram_note": "This is a proposed workflow, not an end-to-end benchmark. Stage widths do not represent cost. The tests above classify inputs that were already summarized.",
+    "illustration": "Illustrative assumptions · not measured costs",
+    "calculator_title": "How much can the full workflow save?",
+    "baseline_units": "Baseline = 100 cost units",
+    "calculator_lead": "Change the share spent on classification, its replacement cost, and any additional LLM preparation. All other work stays the same in this example.",
+    "controls": {
+      "classificationShare": {
+        "label": "Classification share of the original bill",
+        "hint": "f · Percentage of the entire baseline cost."
+      },
+      "replacementPercent": {
+        "label": "New classifier cost relative to the old step",
+        "hint": "r · 10% means this step becomes 90% cheaper."
+      },
+      "extraPreparation": {
+        "label": "Extra LLM preparation cost",
+        "hint": "h · Percentage of the entire baseline cost, added on top."
+      }
+    },
+    "baseline": "Original workflow",
+    "replacement": "With the decision model",
+    "units": "{n} units",
+    "unchanged": "Other work · {n}",
+    "original": "Original classification · {n}",
+    "classifier": "New classifier · {n}",
+    "preparation": "Extra preparation · {n}",
+    "saved": "Total cost is {n}% lower",
+    "extra": "Total cost is {n}% higher",
+    "same": "Total cost is unchanged",
+    "limit": "If other work stays fixed, even a free classifier can save at most the original classification share. Added preparation reduces that saving. A classifier that enables early exits or fewer later LLM calls changes this assumption.",
+    "accounting": "Count only preparation added by the new design. Shared preprocessing is already part of the baseline. These sliders are hypothetical cost ratios, not token-price ratios or measured pipeline savings.",
+    "scope_title": "What the measured cost leaves out",
+    "scope_body": "The RCA comparison measures a choice among fixed categories. Its inputs already contain prepared facts. The reported API costs exclude generating those summaries, gathering more evidence, explaining the cause, and validating a fix. Those steps can still require LLM calls.",
+    "decisions_source": "OpenAI Decisions output contract",
+    "context_title": "Input constraints can add work",
+    "context_body": "A deployment's context budget and input schema can require selection, chunking, or LLM summaries. That adds processing cost and may drop evidence the later analysis needs. A short context window is not a universal property of decision models.",
+    "context_limits": "Jev 1.13 and 1.14 document defaults of 64k tokens per request and 32k per question. An opt-in mode allows 262k for both, with vendor warnings about speed and accuracy. The tested runs use the defaults.",
+    "context_source": "Jev model and context limits"
   }
 }

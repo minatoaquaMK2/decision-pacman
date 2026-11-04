@@ -659,18 +659,87 @@ What this shows:
 - Neither variant separates from the published model by more than about 1.3 standard errors. Retested on the other 50 evaluation seeds (150-199), the mixed student's lockstep lead repeated (+26.7 pellets, standard error 31.5); over all 100 seeds it is +26.5 (standard error 23.5, about 1.1 standard errors), ahead on 50 of 100 seeds, with no score difference (+292 points, standard error 435). The lead stays within noise.
 - The teacher's own probabilities did not help. With thinking off, Qwen puts 0.935 on its choice on average, so the soft targets are close to the smoothed hard labels they replace.
 
+### 25. Fresh hosted decisions and ordinary LLM choices (2026-11-04)
+
+Five treatments use the existing runner and facts-only encoders. Account model discovery returned GPT-6 Luna and GPT-6.1 Terra, but no GPT-6.1 Luna, so Luna 6 is the requested fallback. The two Responses treatments use strict legal-choice JSON, `reasoning.effort=none`, Standard service, no tools/history, and a 128-token output cap. They are low-cost choice configurations, not highest-reasoning tests. Decisions and Responses are separate treatments even when the model name matches.
+
+**Client and timing.** Linux x64, 8 logical CPUs, Intel Xeon Gold 6530, Node 24.21.0. Vendor inference hardware is undisclosed. Luna Decisions ran first, both pinned Jev versions ran concurrently next, and the two Responses models ran concurrently last. Each treatment sends one request at a time. Network and provider load can differ between batches. Latency measures request start through the complete response body, excluding parsing and ledger I/O. There are no intentional exact-request replays or warm-cache latency probes.
+
+**Pac-Man.** Ten full games per treatment, seeds 100-109, `features`, realtime, speed 1, cap 300 seconds, no lookahead. The clock continues during model inference. The latency column is the mean of each game's p50, not a pooled median. SE is the standard error across ten game pellet counts. Small samples and different serving windows do not establish a stable ranking.
+
+| Model / API | Pellets mean (SE) | Range | Mean game p50 | Game API cost |
+|---|---|---|---|---|
+| GPT-6 Luna · Decisions | 235.9 (20.6) | 157-377 | 201.0 ms | $0.09796270 |
+| jev-1.13.0 | 187.1 (10.6) | 142-234 | 116.4 ms | $0.09137176 |
+| jev-1.14.0 | 204.2 (8.6) | 157-253 | 101.4 ms | $0.16556035 |
+| GPT-6 Luna · Responses | 66.1 (13.2) | 7-136 | 6137.7 ms | $0.00293330 |
+| GPT-6.1 Terra · Responses | 106.6 (7.3) | 86-165 | 1114.0 ms | $0.11655900 |
+
+The historical distilled `pacman-0.8b-qwen` reference remains 425 pellets over 30 games at 55 ms on M3 Ultra (section 18). Its weights were not rerun on this client's hardware. The website keeps historical rows labeled separately and does not replace the historical ladder or its replay videos with these ten-game means.
+
+**RCA.** The same 333 synthetic and 48 real held-out cases as the recorded student and DeepSeek baselines. Every model sees the facts, instructions, and 23 option descriptions; labels are withheld. All cases stay in the accuracy denominator, including failures. Synthetic SHA-256 is `055f8f18827291fa03c9819a58556d3fc43d3a7cada6897bc10294b89a4ce51a`; real is `6516ef0089a4c47a182cf51c4770a1104e2c10bda4da33ca7ebac9d629ddb328`. The raw records remain private.
+
+| Model / API | Synthetic (333) | Real (48) | Synthetic / real p50 | Synthetic / real cost |
+|---|---|---|---|---|
+| GPT-6 Luna · Decisions | 283/333 (85.0%) | 25/48 (52.1%) | 203.8 / 215.0 ms | $0.03681360 / $0.00451020 |
+| jev-1.13.0 | 279/333 (83.8%) | 20/48 (41.7%) | 116.6 / 115.7 ms | $0.02260234 / $0.00285016 |
+| jev-1.14.0 | 284/333 (85.3%) | 21/48 (43.8%) | 110.6 / 112.4 ms | $0.02260234 / $0.00285016 |
+| GPT-6 Luna · Responses | 278/333 (83.5%) | 25/48 (52.1%) | 997.4 / 983.9 ms | $0.04927297 / $0.00528585 |
+| GPT-6.1 Terra · Responses | 282/333 (84.7%) | 31/48 (64.6%) | 1182.8 / 1124.6 ms | $0.49373850 / $0.05273850 |
+
+Three Luna Responses synthetic requests returned no valid choice and count as errors. The API reported zero token usage for those responses. Every other fresh request produced a valid answer; no requests had unresolved usage.
+
+Historical RCA references are `rca-0.8b`: 313/333 (94.0%) and 11/48 (22.9%); DeepSeek-V4-Flash: 272/333 (81.7%) and 20/48 (41.7%). Student seed/tick identities and labels, and DeepSeek input order and labels, were checked against these cases. Recorded student p50 was 76 ms on both sets; the serving environment differs. The validation set has 225 rows and is distinct from the 333-case synthetic test. See the [RCA results and data method](https://github.com/minatoaquaMK2/baremetal-rca/blob/main/RESULTS.md).
+
+Always choosing `product_bug` gets 34/48 (70.8%) on the real set. Those labels came from one annotator. The small, skewed sample cannot establish reliable per-class rankings or operational readiness.
+
+| Model / API | Product bugs (34) | Other classes (14) | Macro recall |
+|---|---|---|---|
+| GPT-6 Luna · Decisions | 21/34 | 4/14 | 36.2% |
+| jev-1.13.0 | 15/34 | 5/14 | 39.4% |
+| jev-1.14.0 | 16/34 | 5/14 | 39.7% |
+| GPT-6 Luna · Responses | 20/34 | 5/14 | 40.9% |
+| GPT-6.1 Terra · Responses | 27/34 | 4/14 | 37.9% |
+
+**Usage and expense.** All 15,143 requests in the session, including six connectivity checks, have recorded usage. Total estimated API expense is $1.16785656. OpenAI accounts for $0.85998153; Jev for $0.30787504. Counts and prices were reconciled against every request ledger before publication. This is an estimate at published list prices, not an invoice. Historical training, local compute, and earlier runs are excluded.
+
+| Model / API | Requests | Input | Cached reads | Cache writes | Output | Reasoning subset | USD |
+|---|---|---|---|---|---|---|---|
+| GPT-6 Luna · Decisions | 3111 | 1392983 | 0 | 0 | 0 | N/A | $0.13929830 |
+| jev-1.13.0 | 3954 | 2781530 | N/A | N/A | 244282 | N/A | $0.11682426 |
+| jev-1.14.0 | 6916 | 4547925 | N/A | N/A | 360568 | N/A | $0.19101285 |
+| GPT-6 Luna · Responses | 462 | 450525 | 0 | 360949 | 6860 | 0 | $0.05750622 |
+| GPT-6.1 Terra · Responses | 697 | 524734 | 0 | 363052 | 9536 | 0 | $0.66317700 |
+| Jev connectivity checks | 3 | 903 | N/A | N/A | 93 | N/A | $0.00003793 |
+
+Luna Decisions rates are $0.10/M uncached input, $0.01/M cache reads, $0.125/M cache writes, and free output. Luna Responses adds $0.50/M output. Terra Responses rates are $1/$0.05/$1.25/$5 per million uncached/cached/write/output tokens. Cache reads and writes are subsets of input, and reasoning is a subset of output, so neither is counted twice. The write prices use the documented 30-minute default. Jev bills every input token at $0.042/M, with free output; cache counts are N/A. Sources: [Luna](https://developers.openai.com/api/docs/models/gpt-6-luna), [Terra](https://developers.openai.com/api/docs/models/gpt-6.1-terra), [cache accounting](https://developers.openai.com/api/docs/guides/prompt-caching), [Jev pricing](https://help.typesafe.ai/articles/5187202169-how-much-does-jev-cost).
+
+Pac-Man bills reflect different request counts as well as token prices. Latency and survival affect how many calls each player makes, so a smaller game bill is not an equal-work cost comparison. The fixed-size RCA runs provide that narrower comparison.
+
+The published aggregate record is [site/openai-evaluation.json](../site/openai-evaluation.json). The command, stop limits, and private-input contract are in [the evaluation guide](guides/evaluate.md).
+
+### What this says about a full RCA workflow
+
+These RCA calls classify facts that were already summarized. They do not measure log collection, LLM triage or structuring, follow-up investigation, explanation, repair, or validation. A decision endpoint returns typed choices or scores. In the proposed workflow on the website, LLMs still perform the surrounding analysis. This is an architectural example, not evidence that every RCA system must use the same stages.
+
+Normalize the original workflow to 100 cost units. If classification uses `f` units, its replacement costs a fraction `r` of that step, and extra preparation adds `h` units, the new cost is `100 - f + f*r + h`. Savings are `f*(1-r) - h`. With other work fixed, free classification saves at most `f`; extra LLM preparation reduces that benefit. Count only preparation added by the replacement, because shared preprocessing is already in the baseline. An early exit or fewer downstream calls changes this assumption.
+
+The website's illustrative default uses `f=10`, `r=0.1`, and `h=5`: total 96, saving 4%. Raising `h` to 12 gives total 103, or 3% more cost. These are adjustable assumptions, not measured costs or token-price ratios.
+
+Context constraints also need model-specific wording. Jev 1.13/1.14 documents default limits of 64k tokens per request and 32k per question, with an opt-in 262k mode and vendor caveats about speed and accuracy. Input budgets or schemas can require selection, chunking, or LLM summaries, adding cost and potentially losing evidence. A short context window is not a universal property of decision models. The student's training length is not a measured serving limit. Sources: [Jev models](https://docs.typesafe.ai/models), [OpenAI Decisions](https://developers.openai.com/api/docs/guides/decisions).
+
 ## Conclusions
 
 1. Use `tev1:4b` for the real-time demo. At about 160 ms, a decision is shorter than the typical 400 ms to 1.2 s Pac-Man needs to reach the next junction at arcade speed.
 2. Use a 0.8B model as the fine-tuning target and `tev1:0.8b` as its off-the-shelf baseline. The fine-tuned `pacman-0.8b` beats every off-the-shelf model and the scripted rule in play, at `tev1:0.8b`'s latency.
-3. Label training data with `oracle-5s`. It is far stronger than any model we tried and costs milliseconds of local CPU per label. It also scores every option, so labels can be soft: ties become visible instead of being broken arbitrarily. Keep Qwen3.8-27B only as a comparison point.
+3. Label training data with an LLM teacher given 5-second rollout facts (`teacher-peek5s`, Qwen3.8-27B or DeepSeek-V4-Flash). That recipe transfers to tasks without a simulator. When an exact simulator exists, the rollout search (`oracle-5s`) agrees with the LLM teacher on 88-92% of states, costs milliseconds of local CPU per label, and trains an equally strong student (`pacman-0.8b`, section 18).
 4. Mind the information gap. The oracle sees the full game state, and the student sees only its encoding. Decisions that depend on facts the encoding drops cannot be learned from it. Measure the student against the oracle on held-out states to see how large this gap is.
 5. Invest in the encoder before the model. Keep states compact and factual, and measure every encoder change in tokens as well as accuracy.
 6. Compare clocks before comparing players. All Qwen results are lockstep, where the game waits for each answer; Jev, the Tev1 models, and `pacman-0.8b` are realtime, where slow answers arrive after the junction has passed. Qwen without thinking (301 pellets) beating Jev (178) does not yet show it would at realtime.
 7. Do not argue cost against Jev. At the price seen on Vercel AI Gateway ($0.042 per million input tokens), a whole game of about 340 decisions at 605 tokens each costs under a cent. The case for a fine-tuned local model is task accuracy, latency, offline use, and control. The cost case holds against calling a large general model at every step.
 8. A stronger teacher may not make a stronger student. The student's ceiling is set by what it sees at inference time. Qwen with lookahead beats the oracle by reading rollouts the features-only student never sees, so relabeling with it may leave the student near its current plateau. A student given the same lookahead facts would test this; the rollouts take milliseconds of CPU. Section 18 confirms it: relabeling with the Qwen teacher did not change the features-only student, while a student given the lookahead matched the teacher.
 9. Treat a plain chat model with constrained JSON as the off-the-shelf baseline. On this task it matches or beats the decision models (Jev, `tev1:4b`) from the same facts, so the decision API is a convenience here, not a capability. `phi4-mini` is the fastest and strongest of those tried and returns probabilities. The fine-tuned `pacman-0.8b` still doubles it.
-10. Keep lookahead out of inference. A rollout of the real engine is close to seeing the future, so it may label training data but must not be part of any player's input when players are compared. The distilled 0.8B to cite is `pacman-0.8b-qwen` (features input), not the lookahead student.
+10. Keep lookahead out of inference. A rollout of the real engine is close to seeing the future, so it may label training data but must not be part of any player's input when players are compared. The distilled 0.8B to cite is `pacman-0.8b-qwen` (features input), not the lookahead student. Sections 22-24 confirm that this recipe reproduces across H100s, vLLM serving, DeepSeek-V4-Flash labels, soft teacher probabilities, and mixed teachers.
 
 ## Possible follow-ups (not planned)
 

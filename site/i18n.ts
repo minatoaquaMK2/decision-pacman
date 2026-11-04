@@ -8,15 +8,13 @@ export function isLang(v: unknown): v is Lang {
 }
 
 /**
- * Language order: `?lang=` in the URL, then the saved choice, then the browser languages
- * (any starting with "zh" wins), then English.
+ * Language order: `?lang=` in the URL, then the saved choice, then English.
  */
-export function pickLang(search: string, saved: string | null, browserLangs: readonly string[]): Lang {
+export function pickLang(search: string, saved: string | null, _browserLangs: readonly string[] = []): Lang {
   const asked = new URLSearchParams(search).get("lang");
   if (isLang(asked)) return asked;
   if (isLang(saved)) return saved;
-  const first = browserLangs.find((l) => typeof l === "string" && l.length > 0);
-  return first && first.toLowerCase().startsWith("zh") ? "zh" : "en";
+  return "en";
 }
 
 /** Looks up a dotted key ("hero.title"); returns the key itself when it is missing, so gaps show on the page. */

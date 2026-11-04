@@ -30,6 +30,7 @@ Full numbers, caveats (clock effects, run-to-run variance up to ~150 pellets, ha
 - OpenAI's Decisions API with GPT-6 Luna, asked the same question in the same request shape as Jev, averaged 237 pellets at 168 ms. Run at the same time as Jev on the same seeds, it ate 54 more pellets per game (standard error 15, 20 paired games), with no failed or illegal answers, at about $0.012 per game.
 - Specialization cost generality: on 194 JevBench items, `pacman-0.8b-qwen` scored 0.53 accuracy against 0.66 for `tev1:0.8b` (chance 0.32).
 - Decisions are prefill-bound (`docs/model_evaluation.md` section 17): decision models read the answer directly from option logits, whereas chat models writing ~6-token JSON pay about 72 ms more on an Apple M3 Ultra and 27 ms on an RTX 5090.
+- Rebuilding the student on H100s with Qwen3.8-27B BF16 and serving it through vLLM (`scripts/systemone_vllm.ts` with `--logprobs-mode processed_logprobs`) matched the published model within noise (-3.9 pellets per game over 50 paired lockstep seeds, standard error 29.9). Swapping the teacher for DeepSeek-V4-Flash (91.1% label agreement with Qwen), training on Qwen's token logprobs (`TEACHER_LOGPROBS=1`), or averaging both teachers stayed within 1.1 to 1.3 standard errors over up to 100 evaluation seeds (`docs/model_evaluation.md` sections 22-24).
 
 ## Watch
 
@@ -97,7 +98,7 @@ Then open `http://localhost:5173/?model=pacman-0.8b-qwen`. The GGUF (Q8_0, 795 M
 - [docs/guides/distill-mlx.md](docs/guides/distill-mlx.md): Train and export the same model on an Apple-silicon Mac with MLX, with measured time and memory.
 - [docs/guides/iphone.md](docs/guides/iphone.md): Build and run the native iOS app with three selectable players.
 - [docs/results.md](docs/results.md): Canonical current numbers, hardware details, caveats, and the lookahead rule.
-- [docs/model_evaluation.md](docs/model_evaluation.md): Chronological lab notebook across experiments 1 through 21.
+- [docs/model_evaluation.md](docs/model_evaluation.md): Chronological lab notebook across experiments 1 through 24.
 - [docs/rfc.md](docs/rfc.md): Architecture and technical decisions.
 - [docs/prd.md](docs/prd.md): Original requirements.
 - [docs/working.md](docs/working.md): Changelog and development notes.

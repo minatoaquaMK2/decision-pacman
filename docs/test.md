@@ -9,6 +9,7 @@
 - Encoders: output for fixed states is snapshot-tested, the options match the legal exits, the serialized size stays under the token budget (character count as a proxy), and no verdict fields (safe, danger, recommend) appear.
 - Agent loop: with a fake client, at most one request is in flight, an answer for a stale junction is dropped, and a failed request leaves the intent unchanged.
 - vLLM adapter (`scripts/systemone_vllm.ts`), against a fake vLLM server: the answer is the softmax over the option letters, keyed by option; each request asks for one token restricted to the option letters on the prompt Ollama scores; a letter missing from vLLM's log-probabilities is an error, never a zero; an unknown model is a 404.
+- OpenAI evaluation: cached input and cache writes are charged once, billable refusals retain usage, missing or in-flight usage makes cost incomplete, and request, spend, failure, and persistence limits prevent another API call. RCA requests exclude labels and reasons, duplicate cases fail validation, and failed predictions remain in the accuracy denominator.
 
 ## Integration tests (opt-in, need a running Ollama)
 
@@ -43,3 +44,10 @@ With `npm run dev` and Ollama running: the tick rate reads 30, probability bars 
 ## E2E
 
 None in v1. The canvas output is checked by hand. A Playwright smoke test (page loads, the game advances in human mode, the error panel appears without Ollama) is worth adding once the UI settles.
+
+## Hosted comparison site
+
+- Metered Responses fixtures cover legal choices, refusal/incomplete output, model mismatch, missing usage, cache subsets, and output billing without counting reasoning twice. Task input excludes RCA labels and future game states.
+- Reconcile each published aggregate against request ledgers, including connectivity calls, before publishing numbers.
+- Check the built website and standalone HTML with agent-browser at desktop and mobile widths in both languages. Compare visible results and totals with the published JSON, operate workflow cost controls, and check for overflow and runtime errors.
+- Workflow cost examples are assumptions. The default scenario must show 96 units and 4% savings; increasing added preparation to 12 must show 103 units and 3% higher cost. Locale changes must preserve the selected scenario.

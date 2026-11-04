@@ -14,9 +14,35 @@ Lockstep results are not comparable with realtime results. The same holds for br
 
 The lookahead rule ([AGENTS.md](../AGENTS.md); conclusion 10 of [model_evaluation.md](model_evaluation.md)): lookahead (engine rollouts) may label training data but never enters a player's input in a comparison. Players are compared on the same current-state input (`features`). An exact rollout of a deterministic engine is close to seeing the future (only frightened ghosts turn at random). Results with lookahead in the input are records, not ladder rows.
 
-Hardware: local models ran on an Apple M3 Ultra with Ollama 0.35.0. Jev ran over the internet against TypeSafe's hosted API, and GPT-6 Luna against OpenAI's Decisions API. The Qwen3.8-27B teacher and all fine-tuning ran on one NVIDIA RTX 5090.
+Historical ladder hardware: local models ran on an Apple M3 Ultra with Ollama 0.35.0. Jev ran over the internet against TypeSafe's hosted API, and GPT-6 Luna against OpenAI's Decisions API. The original Qwen3.8-27B teacher and student fine-tuning ran on one NVIDIA RTX 5090. Later H100 experiments are documented separately.
 
-## The ladder
+## Hosted comparison on 2026-11-04
+
+The five fresh treatments below use 10 realtime games each, seeds 100-109, current-state `features`, and a 300-second cap. Responses rows use ordinary LLM calls with reasoning off and strict choice JSON. GPT-6.1 Luna was absent from the account model list, so GPT-6 Luna is the fallback. Full methods, standard errors, RCA class breakdowns, and token accounting are in [section 25](model_evaluation.md#25-fresh-hosted-decisions-and-ordinary-llm-choices-2026-11-04).
+
+| Model / API | Pellets mean (SE) | Range | Mean game p50 | Game API cost |
+|---|---|---|---|---|
+| GPT-6 Luna · Decisions | 235.9 (20.6) | 157-377 | 201.0 ms | $0.09796270 |
+| jev-1.13.0 | 187.1 (10.6) | 142-234 | 116.4 ms | $0.09137176 |
+| jev-1.14.0 | 204.2 (8.6) | 157-253 | 101.4 ms | $0.16556035 |
+| GPT-6 Luna · Responses | 66.1 (13.2) | 7-136 | 6137.7 ms | $0.00293330 |
+| GPT-6.1 Terra · Responses | 106.6 (7.3) | 86-165 | 1114.0 ms | $0.11655900 |
+
+The historical student remains 425 pellets/30 games at 55 ms. The new hosted batches used a Linux client at different times, while historical results used other hardware/network paths. Keep that distinction when comparing rows.
+
+| Model / API | Synthetic (333) | Real (48) | Synthetic / real p50 | Synthetic / real cost |
+|---|---|---|---|---|
+| GPT-6 Luna · Decisions | 283/333 (85.0%) | 25/48 (52.1%) | 203.8 / 215.0 ms | $0.03681360 / $0.00451020 |
+| jev-1.13.0 | 279/333 (83.8%) | 20/48 (41.7%) | 116.6 / 115.7 ms | $0.02260234 / $0.00285016 |
+| jev-1.14.0 | 284/333 (85.3%) | 21/48 (43.8%) | 110.6 / 112.4 ms | $0.02260234 / $0.00285016 |
+| GPT-6 Luna · Responses | 278/333 (83.5%) | 25/48 (52.1%) | 997.4 / 983.9 ms | $0.04927297 / $0.00528585 |
+| GPT-6.1 Terra · Responses | 282/333 (84.7%) | 31/48 (64.6%) | 1182.8 / 1124.6 ms | $0.49373850 / $0.05273850 |
+
+The historical RCA student scored 313/333 and 11/48; DeepSeek scored 272/333 and 20/48 on those same cases. The real-set majority baseline is 34/48 (70.8%), with labels from one annotator. These measurements cover classification of already prepared facts, excluding LLM preprocessing and downstream investigation.
+
+Session API expense, including connectivity checks, is $1.16785656 across 15,143 requests. It comes from recorded usage at list prices, not an invoice. The [bilingual website](../site/index.html) includes the per-task ledger totals and an illustrative full-workflow cost calculator. Its default example saves 4% overall when classification is 10% of the bill, its replacement costs 10% as much, and added preparation costs 5% of the original total. Those assumptions are not measured pipeline savings.
+
+## The historical ladder
 
 All rows: `features` input, no lookahead, 10 games on seeds 100-109, 1x speed, 5-minute cap, realtime clock.
 
@@ -46,9 +72,11 @@ For commands to run ladder evaluations, see [guides/evaluate.md](guides/evaluate
 | Realtime pellets (3-run mean) | 425 | `tev1:0.8b` 69, Jev 178 | section 18 |
 | Lockstep pellets | 417 | the teacher without lookahead, thinking off: 301 (seeds 100-102) | sections 13, 18 |
 | Decision p50, M3 Ultra | 55 ms | `tev1:0.8b` 62 ms | sections 11, 18 |
-| Decision latency, iPhone 16 Pro Max | about 400 ms | | [guides/iphone.md](guides/iphone.md) |
+| Decision latency, iPhone 16 Pro Max | about 505 ms | | [guides/iphone.md](guides/iphone.md) |
 | Agreement with the teacher | 61.9% | `tev1:0.8b` 34.3% | section 18 |
 | JevBench accuracy (194 items) | 0.53 | `tev1:0.8b` 0.66 | section 18 |
+
+Sections 22-24 replicated and varied this recipe on NVIDIA H100s. A full rebuild with Qwen3.8-27B in BF16 and vLLM serving (`scripts/systemone_vllm.ts` with `--logprobs-mode processed_logprobs`) matched the published model on 50 paired lockstep games over seeds 100-149 (-3.9 pellets per game, standard error 29.9). Relabeling the same states with DeepSeek-V4-Flash (91.1% agreement with Qwen) trained a student that matched pellets and survival in both clocks while eating about 3 fewer frightened ghosts per game (section 23). Training on Qwen's token probabilities (`TEACHER_LOGPROBS=1`, `build_sft.py --target probs`) or on the average of both teachers' choices stayed within 1.1 to 1.3 standard errors of the published model over 50 to 100 evaluation seeds (section 24).
 
 The weights are on Hugging Face at [grapeot/decision-pacman-0.8b-GGUF](https://huggingface.co/grapeot/decision-pacman-0.8b-GGUF), with a Modelfile that carries the system prompt the model was trained under. [guides/run-models.md](guides/run-models.md) shows how to import them into Ollama. The training data is not published; to rebuild the model, follow [guides/distill.md](guides/distill.md).
 
@@ -120,6 +148,8 @@ A decision is prefill-bound. A decision model reads its answer directly from opt
 Realtime scores for the same model varied by up to about 150 pellets across 10-game runs (section 18). `pacman-0.8b-qwen` recorded runs of 441, 467, and 366 pellets. The 2026-10-01 runs shared the host Mac with heavy unrelated background workload (load average 15-36); the models compared that day were alternated to face matching load conditions. Compare realtime scores within the same session rather than across days.
 
 Single games show wide variance. Jev's 10 evaluation games ranged from 103 to 231 pellets.
+
+Lockstep games also vary across hardware and batching when near-tie options flip. `pacman-0.8b-qwen` scored 417 pellets on seeds 100-109 on the M3 Ultra and 401 on an H100, and parallel and sequential vLLM runs of the rebuilt student diverged on 7 of 10 seeds (section 22). Compare close models over 50 to 100 paired seeds on one stack.
 
 Hosted players depend on the network and the provider's load. OpenAI's Decisions API is a public beta: one GPT-6 Luna game ran at a p50 of 301 ms against about 160 ms for the rest, and Jev answered one request with HTTP 529 (overloaded). Both were run at the same time so that they shared these conditions.
 

@@ -253,6 +253,38 @@
 - Ollama 0.35.1, H100: lockstep 100-149 soft 393.7, mix 427.1 (published 400.8); realtime 100-119 at once soft 408.5, mix 481.1, published 440.6. Paired vs published: mix +26.3 (SE 35.1) and +40.6 (SE 31.3), soft -7.1 (SE 30.2) and -32.0 (SE 48.2). Section 24 of `model_evaluation.md`.
 - Lockstep seeds 150-199, published and mix at once: 378.2 and 404.9 (+26.7, SE 31.5). Over seeds 100-199: +26.5 pellets (SE 23.5), ahead on 50 of 100, score +292 (SE 435).
 
+### 2026-11-04 (documentation alignment and interactive mechanism explainer site)
+
+- Aligned `README.md`, `docs/results.md`, `docs/model_evaluation.md`, `docs/rfc.md`, `docs/guides/teacher-api.md`, and `docs/guides/evaluate.md` through section 24: H100 + vLLM replication (`--logprobs-mode processed_logprobs`, -3.9 pellets over 50 paired lockstep seeds, SE 29.9), DeepSeek-V4-Flash teacher agreement (91.1%), soft probabilities (`TEACHER_LOGPROBS=1`, `--target probs`), mixed teachers over 100 seeds, and the 505 ms iPhone 16 Pro Max step time.
+- Upgraded `site/` into an English-default bilingual (1:1 EN/ZH parity) interactive mechanism and findings explainer (`site/lab.ts`, `site/lab-view.ts`, `site/index.html`, `site/main.ts`, `site/style.css`, `site/data.json`, `site/copy/{en,zh}.json`, `tests/site.test.ts`): 4-card executive KPI strip, `gpt-6-luna` (237) on the benchmark ladder, a 4-chapter interactive Mechanism & Findings Lab with clickable SVG pipeline diagrams, live node contract inspector, and in-browser experiments powered by `src/engine/`, `src/encoders/`, `src/agent/prompt.ts`, and `src/agent/oracle.ts`, plus a 3-card engineering takeaways section.
+
+### 2026-11-04 (hosted comparison and RCA workflow costs)
+
+- Added a metered Node evaluation command for pinned Jev 1.13/1.14, Luna Decisions, and ordinary Luna/Terra Responses. Missing or unpriceable usage is explicit, billed invalid answers remain counted, and model substitution stops the run. No API credentials or raw RCA inputs enter the public site.
+- Measured Pac-Man with `features`, realtime 1x, ten games per treatment on seeds 100-109 and 300-second cap. Client Linux x64, 8 vCPUs, Intel Xeon Gold 6530, Node 24.21.0; vendor inference hardware undisclosed.
+- GPT-6 Luna · Decisions: 235.9 pellets, mean game p50 201.0 ms, $0.09796270 for games. RCA `rca-facts`: 283/333 synthetic and 25/48 real. Total route expense including its connectivity check $0.13929830.
+- jev-1.13.0: 187.1 pellets, mean game p50 116.4 ms, $0.09137176 for games. RCA `rca-facts`: 279/333 synthetic and 20/48 real. Total route expense, with Jev connectivity checks listed separately, $0.11682426.
+- jev-1.14.0: 204.2 pellets, mean game p50 101.4 ms, $0.16556035 for games. RCA `rca-facts`: 284/333 synthetic and 21/48 real. Total route expense, with Jev connectivity checks listed separately, $0.19101285.
+- GPT-6 Luna · Responses: 66.1 pellets, mean game p50 6137.7 ms, $0.00293330 for games. RCA `rca-facts`: 278/333 synthetic and 25/48 real. Total route expense including its connectivity check $0.05750622.
+- GPT-6.1 Terra · Responses: 106.6 pellets, mean game p50 1114.0 ms, $0.11655900 for games. RCA `rca-facts`: 282/333 synthetic and 31/48 real. Total route expense including its connectivity check $0.66317700.
+- Luna Responses had three invalid synthetic RCA answers, counted as errors; all other fresh requests succeeded. The API reported zero usage on those three responses.
+- All 15,143 requests cost $1.16785656 at list prices, including three additional Jev connectivity probes. See section 25 and the site aggregate JSON for all input/cache/output counts, per-task expense, class breakdowns, and timing caveats.
+- Added bilingual RCA workflow diagram and adjustable full-cost example. Extra LLM preparation can offset classifier savings; short context is qualified by specific Jev limits. Model the Domain informed route identity and unpriced usage; Explain the Number separated measured classification expense from illustrative pipeline economics.
+- Verified ledger reconciliation, typecheck, full unit suite, production/standalone build, and agent-browser desktop/mobile EN/ZH checks. No commit or push requested.
+
+### 2026-11-04 (comparison costs and accounting layout)
+
+- Added a cost column to the Pac-Man and RCA comparison tables, derived from the existing measured usage. Pac-Man uses its game-run total; RCA combines the synthetic and real classification runs. Connectivity checks stay in the detailed ledger. Historical costs remain unrecorded.
+- Removed the total-cost summary card and placed the request, token, provider-cost, and pricing details after the final narrative section. Both comparison and accounting regions update with the language toggle.
+- Verified typecheck, all 21 site tests, and the standalone build. Agent-browser checked both languages at desktop and mobile widths. Comparison headers wrap so the added cost column fits the desktop table; historical and fresh rows remain distinct.
+
+### 2026-11-04 (report title and publication)
+
+- Renamed the report to “Decision Model Report” in English and “汇报 Decision Model” in Chinese. The browser title, sharing title, page heading, and header use the same report name.
+- The user authorized committing and pushing the completed evaluation and report changes to the existing work branch.
+- Replaced scenario fixture addresses with documentation-only networks. Corrected the retained mechanism demo's paired timing inputs and labels for simulated option weights; latency slider updates preserve the active control.
+- Verified the final standalone build, all 137 tests, and whitespace checks. Agent-browser confirmed both report titles, comparison cost columns, accounting at the end, and a mobile layout without page overflow or JavaScript errors.
+
 ## Lessons Learned
 - vLLM's `allowed_token_ids` restricts sampling but not the returned log-probabilities: by default `top_logprobs` lists the top tokens of the whole vocabulary. A fine-tuned decision model puts mass on letters past the last option (D, E), which pushed real options out of the list and silently scored them 0, while the choices stayed right. Start vLLM with `--logprobs-mode processed_logprobs`, and check served probabilities against the training weights per state, not only the choices. A base-model check is not enough, because its top tokens happened to be exactly the option letters.
 - Lockstep games are not reproducible across runs on vLLM: 7 of 10 seeds diverged between a parallel and a sequential run of the same model. Compare lockstep results over several runs, and do not read a single 10-game run as exact.

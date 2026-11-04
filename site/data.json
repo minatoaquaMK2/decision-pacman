@@ -8,6 +8,12 @@
     "phone": { "src": "media/iphone_08b.mp4", "poster": "media/iphone_08b.jpg" }
   },
   "averages": { "jev": 178, "ours": 425 },
+  "kpis": [
+    { "id": "pellets", "value": "425", "delta": "2.4x Jev (178)" },
+    { "id": "latency", "value": "55 ms", "delta": "vs 115 ms cloud API" },
+    { "id": "footprint", "value": "795 MB", "delta": "~505 ms/step on iPhone" },
+    { "id": "training", "value": "32 min", "delta": "1 GPU · 54k states" }
+  ],
   "ranking": [
     { "id": "jev", "pellets": 86 },
     { "id": "phi4_mini", "pellets": 143 },
@@ -22,21 +28,57 @@
     { "id": "greedy", "value": 201 },
     { "id": "gemma4_e4b", "value": 230 },
     { "id": "phi4_mini", "value": 232 },
+    { "id": "gpt_6_luna", "value": 237, "highlight": "neutral" },
     { "id": "ours", "value": 425, "highlight": "strong" }
   ],
-  "band": { "from": 148, "to": 232 },
+  "band": { "from": 148, "to": 237 },
   "thinking": { "off": 301, "on": 531 },
   "timer": { "fast_s": 0.055, "slow_s": 2.4 },
+  "ablations": [
+    { "id": "tev1_08b", "teacher": "Base off-the-shelf", "target": "n/a", "hardware": "M3 Ultra", "realtime": 69, "lockstep": 100, "se": 14.0, "jevbench": 0.66 },
+    { "id": "pacman_08b_qwen", "teacher": "Qwen3.8-27B (NVFP4)", "target": "hard", "hardware": "RTX 5090", "realtime": 425, "lockstep": 417, "se": 29.9, "jevbench": 0.53 },
+    { "id": "pacman_08b_qwen_h100", "teacher": "Qwen3.8-27B (BF16)", "target": "hard", "hardware": "H100 + vLLM", "realtime": 441, "lockstep": 401, "se": 29.9, "jevbench": 0.53 },
+    { "id": "pacman_08b_ds_h100", "teacher": "671B MoE Open Model", "target": "hard", "hardware": "H100 + vLLM", "realtime": 472, "lockstep": 390, "se": 32.5, "jevbench": 0.52 },
+    { "id": "pacman_08b_soft_h100", "teacher": "Qwen3.8-27B (logprobs)", "target": "soft", "hardware": "H100 + vLLM", "realtime": 409, "lockstep": 394, "se": 30.2, "jevbench": 0.51 },
+    { "id": "pacman_08b_mix_h100", "teacher": "27B + 671B MoE (50/50)", "target": "mixed", "hardware": "H100 + vLLM", "realtime": 481, "lockstep": 427, "se": 23.5, "jevbench": 0.53 },
+    { "id": "pacman_08b_mlx_1ep", "teacher": "Qwen3.8-27B (1 epoch)", "target": "hard", "hardware": "M3 Ultra MLX", "realtime": 423, "lockstep": 412, "se": 31.0, "jevbench": 0.53 }
+  ],
   "links": {
     "cta_zh": "https://ai-builders.com/",
     "cta_en": "https://maven.com/superlinear/aibuilders",
-    "repo": "https://github.com/grapeot/decision-pacman",
+    "repo": "https://github.com/minatoaquaMK2/decision-pacman",
+    "rca_repo": "https://github.com/minatoaquaMK2/baremetal-rca",
+    "validation": "https://github.com/minatoaquaMK2/baremetal-rca/blob/main/VALIDATION.md",
     "model": "https://huggingface.co/grapeot/decision-pacman-0.8b-GGUF",
-    "results": "https://github.com/grapeot/decision-pacman/blob/master/docs/results.md",
-    "notebook": "https://github.com/grapeot/decision-pacman/blob/master/docs/model_evaluation.md"
+    "results": "https://github.com/minatoaquaMK2/decision-pacman/blob/master/docs/results.md",
+    "notebook": "https://github.com/minatoaquaMK2/decision-pacman/blob/master/docs/model_evaluation.md"
+  },
+  "rca": {
+    "classes": 23,
+    "train_rows": 1128,
+    "val_rows": 225,
+    "train_steps": 141,
+    "train_minutes": 3,
+    "val_acc_start": 21.8,
+    "val_acc_end": 90.2,
+    "student_latency_ms": 76,
+    "deepseek_latency_ms": 145,
+    "qwen27b_latency_ms": 646,
+    "synth_n": 333,
+    "synth_student_acc": 94.0,
+    "synth_deepseek_acc": 81.7,
+    "real_triaged": 236,
+    "real_failures": 77,
+    "real_settled": 48,
+    "real_product_bug": 34,
+    "real_config_env": 14,
+    "real_student_acc": 22.9,
+    "real_deepseek_acc": 41.7,
+    "teacher_label_agreement": 72.9
   },
   "commands": [
     "hf download grapeot/decision-pacman-0.8b-GGUF pacman-0.8b-qwen-Q8_0.gguf Modelfile.pacman-0.8b-qwen --local-dir .",
+    "echo 'CAPABILITY decision' >> Modelfile.pacman-0.8b-qwen",
     "ollama create pacman-0.8b-qwen -f Modelfile.pacman-0.8b-qwen"
   ]
 }

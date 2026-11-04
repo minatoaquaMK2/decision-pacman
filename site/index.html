@@ -3,9 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Decision Pac-Man</title>
+    <title>Decision Model Report</title>
     <meta name="description" content="" />
-    <meta property="og:title" content="Decision Pac-Man" />
+    <meta property="og:title" content="Decision Model Report" />
     <meta property="og:description" content="" />
     <meta property="og:image" content="https://grapeot.github.io/decision-pacman/media/pacman_08b_qwen.jpg" />
     <meta name="theme-color" content="#ffffff" />
@@ -16,19 +16,155 @@
       <div class="topbar-inner">
         <a class="brand" href="#hero">
           <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 16 L29 8 A14 14 0 1 0 29 24 Z" /></svg>
-          <span data-i18n="hero.kicker"></span>
+          <span data-i18n="meta.title"></span>
         </a>
+        <nav class="topnav" aria-label="Sections">
+          <a href="#hero" data-i18n="nav.takeaways"></a>
+          <a href="#rca" data-i18n="nav.rca"></a>
+          <a href="#openai-evaluation" data-i18n="nav.openai"></a>
+          <a href="#halo" data-i18n="nav.benchmarks"></a>
+          <a href="#play" data-i18n="nav.play"></a>
+          <a href="#paths" data-i18n="nav.paths"></a>
+        </nav>
         <button id="lang-toggle" class="lang-toggle" type="button" data-i18n="nav.lang"></button>
       </div>
     </header>
 
     <main>
-      <!-- 1. Hero: Jev vs ours -->
+      <!-- 1. Hero + Executive Takeaways Up Front (BLUF) -->
       <section id="hero" class="section section-paper hero">
         <div class="wrap">
           <p class="kicker" data-i18n="hero.kicker"></p>
           <h1 class="display" data-i18n="hero.title"></h1>
           <p class="lead" data-i18n="hero.subtitle"></p>
+
+          <div id="takeaways" class="takeaways-grid hero-takeaways">
+            <article class="card takeaway-card">
+              <span class="takeaway-num" data-i18n="takeaways.t1_badge"></span>
+              <h2 class="subheading" data-i18n="takeaways.t1_title"></h2>
+              <p data-i18n="takeaways.t1_body"></p>
+            </article>
+            <article class="card takeaway-card">
+              <span class="takeaway-num" data-i18n="takeaways.t2_badge"></span>
+              <h2 class="subheading" data-i18n="takeaways.t2_title"></h2>
+              <p data-i18n="takeaways.t2_body"></p>
+            </article>
+            <article class="card takeaway-card">
+              <span class="takeaway-num" data-i18n="takeaways.t3_badge"></span>
+              <h2 class="subheading" data-i18n="takeaways.t3_title"></h2>
+              <p data-i18n="takeaways.t3_body"></p>
+            </article>
+          </div>
+
+          <div class="kpi-grid" id="kpi-grid">
+            <article class="kpi-card">
+              <span class="kpi-label" data-i18n="hero.kpis.pellets_label"></span>
+              <b class="kpi-value">69 → 425</b>
+              <span class="kpi-delta" data-i18n="hero.kpis.pellets_delta"></span>
+            </article>
+            <article class="kpi-card">
+              <span class="kpi-label" data-i18n="hero.kpis.footprint_label"></span>
+              <b class="kpi-value">313/333</b>
+              <span class="kpi-delta" data-i18n="hero.kpis.footprint_delta"></span>
+            </article>
+            <article class="kpi-card">
+              <span class="kpi-label" data-i18n="hero.kpis.training_label"></span>
+              <b class="kpi-value">94.0% → 22.9%</b>
+              <span class="kpi-delta" data-i18n="hero.kpis.training_delta"></span>
+            </article>
+            <article class="kpi-card">
+              <span class="kpi-label" data-i18n="hero.kpis.latency_label"></span>
+              <b class="kpi-value">423 → 266</b>
+              <span class="kpi-delta" data-i18n="hero.kpis.latency_delta"></span>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Bare-Metal Provisioning RCA & The Four Conditions -->
+      <section id="rca" class="section section-cream rca-section">
+        <div class="wrap">
+          <p class="kicker" data-i18n="rca.kicker"></p>
+          <h2 class="heading" data-i18n="rca.title"></h2>
+          <p class="lead" data-i18n="rca.lead"></p>
+
+          <div class="rca-split-grid">
+            <article class="card rca-card rca-card-synth">
+              <div class="rca-card-head">
+                <span class="lab-badge lab-badge-strong" data-i18n="rca.synth_badge"></span>
+                <b class="rca-big-stat">94.0% <small>313/333</small></b>
+              </div>
+              <h3 class="subheading" data-i18n="rca.synth_title"></h3>
+              <p data-i18n="rca.synth_body"></p>
+              <div class="lab-bars" id="rca-synthetic-comparison"></div>
+            </article>
+
+            <article class="card rca-card rca-card-real">
+              <div class="rca-card-head">
+                <span class="lab-badge lab-badge-warn" data-i18n="rca.real_badge"></span>
+                <b class="rca-big-stat rca-big-warn">22.9% <small>vs 41.7%</small></b>
+              </div>
+              <h3 class="subheading" data-i18n="rca.real_title"></h3>
+              <p data-i18n="rca.real_body"></p>
+              <div class="lab-bars" id="rca-real-comparison"></div>
+            </article>
+          </div>
+
+          <p class="evaluation-caveat" id="rca-comparison-caveat"></p>
+
+          <h3 class="subheading rca-matrix-title" data-i18n="rca.conditions_title"></h3>
+          <p class="rca-matrix-lead" data-i18n="rca.conditions_lead"></p>
+
+          <div class="conditions-grid">
+            <article class="card cond-card">
+              <div class="cond-top">
+                <span class="takeaway-num">01</span>
+                <span class="lab-badge lab-badge-strong" data-i18n="rca.c1_status"></span>
+              </div>
+              <h4 data-i18n="rca.c1_title"></h4>
+              <p data-i18n="rca.c1_body"></p>
+            </article>
+            <article class="card cond-card">
+              <div class="cond-top">
+                <span class="takeaway-num">02</span>
+                <span class="lab-badge lab-badge-strong" data-i18n="rca.c2_status"></span>
+              </div>
+              <h4 data-i18n="rca.c2_title"></h4>
+              <p data-i18n="rca.c2_body"></p>
+            </article>
+            <article class="card cond-card cond-card-gap">
+              <div class="cond-top">
+                <span class="takeaway-num">03</span>
+                <span class="lab-badge lab-badge-warn" data-i18n="rca.c3_status"></span>
+              </div>
+              <h4 data-i18n="rca.c3_title"></h4>
+              <p data-i18n="rca.c3_body"></p>
+            </article>
+            <article class="card cond-card cond-card-gap">
+              <div class="cond-top">
+                <span class="takeaway-num">04</span>
+                <span class="lab-badge lab-badge-warn" data-i18n="rca.c4_status"></span>
+              </div>
+              <h4 data-i18n="rca.c4_title"></h4>
+              <p data-i18n="rca.c4_body"></p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="rca-workflow" class="section section-cream" aria-labelledby="workflow-title">
+        <div class="wrap" id="rca-workflow-root"></div>
+      </section>
+
+      <section id="openai-evaluation" class="section section-paper">
+        <div class="wrap" id="evaluation-report"></div>
+      </section>
+
+      <!-- 3. Controlled Benchmark Ladder & Video Proof (Why Pac-Man Worked) -->
+      <section id="halo" class="section section-paper">
+        <div class="wrap">
+          <h2 class="heading" data-i18n="halo.title"></h2>
+          <p class="lead" data-i18n="halo.lead"></p>
 
           <div class="pair" data-pair>
             <figure class="clip clip-neutral">
@@ -51,10 +187,52 @@
             </div>
           </div>
           <p class="note" data-i18n="hero.note"></p>
+
+          <div class="pair" data-pair>
+            <figure class="clip clip-neutral">
+              <figcaption class="clip-label" data-i18n="halo.jev_label"></figcaption>
+              <div class="screen"><video muted playsinline preload="none" data-clip="jev"></video></div>
+              <p class="clip-stat" data-i18n="hero.jev_stat"></p>
+            </figure>
+            <div class="versus" aria-hidden="true">vs</div>
+            <figure class="clip clip-plain">
+              <figcaption class="clip-label" data-i18n="halo.phi_label"></figcaption>
+              <div class="screen"><video muted playsinline preload="none" data-clip="phi4_mini"></video></div>
+              <p class="clip-stat" data-i18n="halo.phi_stat"></p>
+            </figure>
+            <div class="pair-controls">
+              <button class="btn btn-ghost replay" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z" /></svg>
+                <span data-i18n="hero.replay"></span>
+              </button>
+              <div class="progress" aria-hidden="true"><div class="progress-fill"></div></div>
+            </div>
+          </div>
+
+          <div class="card chart-card">
+            <h3 class="card-title" data-i18n="halo.chart_title"></h3>
+            <div id="chart" class="chart"></div>
+            <p class="note" data-i18n="halo.chart_note"></p>
+          </div>
+
+          <div class="offline">
+            <div class="phone">
+              <div class="phone-notch" aria-hidden="true"></div>
+              <video muted playsinline preload="none" loop data-clip="phone"></video>
+              <button class="phone-sound" id="phone-sound" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path class="spk" d="M4 9h4l5-4v14l-5-4H4z" /><path class="waves" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" /><path class="cross" d="M16 9l6 6M22 9l-6 6" /></svg>
+                <span id="phone-sound-label"></span>
+              </button>
+            </div>
+            <div class="offline-text">
+              <h3 class="subheading" data-i18n="halo.offline_title"></h3>
+              <p class="lead" data-i18n="halo.offline_body"></p>
+            </div>
+          </div>
         </div>
       </section>
 
-      <!-- 2. Play it yourself -->
+      <!-- 5. Interactive Controlled Sandbox -->
       <section id="play" class="section section-cream">
         <div class="wrap">
           <h2 class="heading" data-i18n="play.title"></h2>
@@ -113,58 +291,8 @@
         </div>
       </section>
 
-      <!-- 3. Peel off the halo -->
-      <section id="halo" class="section section-paper">
-        <div class="wrap">
-          <h2 class="heading" data-i18n="halo.title"></h2>
-          <p class="lead" data-i18n="halo.lead"></p>
-
-          <div class="pair" data-pair>
-            <figure class="clip clip-neutral">
-              <figcaption class="clip-label" data-i18n="halo.jev_label"></figcaption>
-              <div class="screen"><video muted playsinline preload="none" data-clip="jev"></video></div>
-              <p class="clip-stat" data-i18n="hero.jev_stat"></p>
-            </figure>
-            <div class="versus" aria-hidden="true">vs</div>
-            <figure class="clip clip-plain">
-              <figcaption class="clip-label" data-i18n="halo.phi_label"></figcaption>
-              <div class="screen"><video muted playsinline preload="none" data-clip="phi4_mini"></video></div>
-              <p class="clip-stat" data-i18n="halo.phi_stat"></p>
-            </figure>
-            <div class="pair-controls">
-              <button class="btn btn-ghost replay" type="button">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z" /></svg>
-                <span data-i18n="hero.replay"></span>
-              </button>
-              <div class="progress" aria-hidden="true"><div class="progress-fill"></div></div>
-            </div>
-          </div>
-
-          <div class="card chart-card">
-            <h3 class="card-title" data-i18n="halo.chart_title"></h3>
-            <div id="chart" class="chart"></div>
-            <p class="note" data-i18n="halo.chart_note"></p>
-          </div>
-
-          <div class="offline">
-            <div class="phone">
-              <div class="phone-notch" aria-hidden="true"></div>
-              <video muted playsinline preload="none" loop data-clip="phone"></video>
-              <button class="phone-sound" id="phone-sound" type="button">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path class="spk" d="M4 9h4l5-4v14l-5-4H4z" /><path class="waves" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" /><path class="cross" d="M16 9l6 6M22 9l-6 6" /></svg>
-                <span id="phone-sound-label"></span>
-              </button>
-            </div>
-            <div class="offline-text">
-              <h3 class="subheading" data-i18n="halo.offline_title"></h3>
-              <p class="lead" data-i18n="halo.offline_body"></p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 4. Two paths -->
-      <section id="paths" class="section section-cream">
+      <!-- 6. Two paths -->
+      <section id="paths" class="section section-paper">
         <div class="wrap">
           <h2 class="heading" data-i18n="paths.title"></h2>
           <p class="lead" data-i18n="paths.lead"></p>
@@ -211,8 +339,8 @@
         </div>
       </section>
 
-      <!-- 5. From user to builder -->
-      <section id="builder" class="section section-paper">
+      <!-- 7. From user to builder -->
+      <section id="builder" class="section section-cream">
         <div class="wrap">
           <h2 class="heading" data-i18n="builder.title"></h2>
           <div class="builder">
@@ -251,35 +379,10 @@
           <blockquote class="quote" data-i18n="builder.quote"></blockquote>
         </div>
       </section>
-
-      <!-- 6. CTA -->
-      <section id="cta" class="section section-mist cta">
-        <div class="wrap wrap-narrow">
-          <h2 class="heading" data-i18n="cta.title"></h2>
-          <p class="lead" data-i18n="cta.body"></p>
-          <a class="btn btn-primary btn-big" id="cta-button" href="https://maven.com/superlinear/aibuilders" target="_blank" rel="noopener" data-i18n="cta.button"></a>
-        </div>
+      <section id="evaluation-usage" class="section section-paper" aria-labelledby="evaluation-usage-title">
+        <div class="wrap" id="evaluation-usage-report"></div>
       </section>
     </main>
-
-    <footer class="footer">
-      <div class="wrap footer-grid">
-        <div>
-          <h3 class="footer-title" data-i18n="footer.run_title"></h3>
-          <div id="commands" class="commands"></div>
-        </div>
-        <div>
-          <h3 class="footer-title" data-i18n="footer.links_title"></h3>
-          <ul class="links">
-            <li><a data-link="repo" data-i18n="footer.repo" target="_blank" rel="noopener"></a></li>
-            <li><a data-link="model" data-i18n="footer.model" target="_blank" rel="noopener"></a></li>
-            <li><a data-link="results" data-i18n="footer.results" target="_blank" rel="noopener"></a></li>
-            <li><a data-link="notebook" data-i18n="footer.notebook" target="_blank" rel="noopener"></a></li>
-          </ul>
-        </div>
-      </div>
-      <p class="wrap fineprint" data-i18n="footer.fineprint"></p>
-    </footer>
 
     <script type="module" src="./main.ts"></script>
   </body>

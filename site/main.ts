@@ -1,10 +1,14 @@
 import "./style.css";
+import { renderEvaluation } from "./evaluation.ts";
+import { renderWorkflow } from "./rca-workflow.ts";
 import data from "./data.json";
 import en from "./copy/en.json";
 import zh from "./copy/zh.json";
 import { drawChart, setupChart, type Bar } from "./chart.ts";
 import { attachSource, setupPair, setupPhone } from "./clips.ts";
 import { fill, lookup, pickLang, type Copy, type Lang } from "./i18n.ts";
+import { buildScenarioBank, type AblationRow } from "./lab.ts";
+import { mountMechanismLab } from "./lab-view.ts";
 import { PlaySection } from "./play.ts";
 import { setupTimers } from "./timers.ts";
 
@@ -46,9 +50,15 @@ function escapeHtml(s: string): string {
   return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
 }
 
+function formatInlineCode(escaped: string): string {
+  return escaped.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
+}
+
 /** Copy with placeholders: the filled-in numbers are wrapped so they can stand out. */
 function fillHtml(template: string, vars: Record<string, string | number>): string {
-  return escapeHtml(template).replace(/\{(\w+)\}/g, (m, name: string) => (name in vars ? `<b class="num">${escapeHtml(String(vars[name]))}</b>` : m));
+  return formatInlineCode(escapeHtml(template)).replace(/\{(\w+)\}/g, (m, name: string) =>
+    name in vars ? `<b class="num">${escapeHtml(String(vars[name]))}</b>` : m,
+  );
 }
 
 const listeners: (() => void)[] = [];
@@ -62,21 +72,33 @@ function applyCopy(): void {
   for (const el of document.querySelectorAll<HTMLElement>("[data-i18n]")) {
     const key = el.dataset.i18n!;
     const vars = VARS[key];
-    if (vars) el.innerHTML = fillHtml(lookup(COPY[lang], key), vars);
-    else el.textContent = t(key);
+    if (vars) {
+      el.innerHTML = fillHtml(lookup(COPY[lang], key), vars);
+    } else {
+      const text = t(key);
+      if (text.includes("`") && !(el instanceof SVGElement)) {
+        el.innerHTML = formatInlineCode(escapeHtml(text));
+      } else {
+        el.textContent = text;
+      }
+    }
   }
-  const cta = document.getElementById("cta-button") as HTMLAnchorElement;
-  cta.href = lang === "zh" ? data.links.cta_zh : data.links.cta_en;
+  const cta = document.getElementById("cta-button") as HTMLAnchorElement | null;
+  if (cta) cta.href = lang === "zh" ? data.links.cta_zh : data.links.cta_en;
   for (const fn of listeners) fn();
 }
 
 function setLang(next: Lang): void {
   lang = next;
   saveLang(next);
-  // Keep the choice in the address bar, so a copied link opens in the same language.
-  const url = new URL(location.href);
-  url.searchParams.set("lang", next);
-  history.replaceState(null, "", url);
+  try {
+    // Keep the choice in the address bar, so a copied link opens in the same language.
+    const url = new URL(location.href);
+    url.searchParams.set("lang", next);
+    history.replaceState(null, "", url);
+  } catch {
+    // file:// origins in some browsers disallow replaceState with query strings.
+  }
   applyCopy();
 }
 
@@ -87,26 +109,28 @@ for (const a of document.querySelectorAll<HTMLAnchorElement>("a[data-link]")) {
   a.href = data.links[a.dataset.link as keyof typeof data.links];
 }
 
-const commands = document.getElementById("commands")!;
-for (const cmd of data.commands) {
-  const row = document.createElement("div");
-  row.className = "cmd";
-  const code = document.createElement("code");
-  code.textContent = cmd;
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.dataset.i18n = "footer.copy";
-  btn.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(cmd);
-      btn.textContent = t("footer.copied");
-      setTimeout(() => (btn.textContent = t("footer.copy")), 1500);
-    } catch {
-      // Clipboard access can be refused; the command stays selectable.
-    }
-  });
-  row.append(code, btn);
-  commands.appendChild(row);
+const commands = document.getElementById("commands");
+if (commands) {
+  for (const cmd of data.commands) {
+    const row = document.createElement("div");
+    row.className = "cmd";
+    const code = document.createElement("code");
+    code.textContent = cmd;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.dataset.i18n = "footer.copy";
+    btn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(cmd);
+        btn.textContent = t("footer.copied");
+        setTimeout(() => (btn.textContent = t("footer.copy")), 1500);
+      } catch {
+        // Clipboard access can be refused; the command stays selectable.
+      }
+    });
+    row.append(code, btn);
+    commands.appendChild(row);
+  }
 }
 
 // ---- clips -------------------------------------------------------------------------
@@ -131,9 +155,34 @@ const redrawChart = setupChart(chartHost, () =>
   drawChart(chartHost, data.ladder as Bar[], data.band, (id) => t(`halo.chart_labels.${id}`), t("halo.chart_band")),
 );
 listeners.push(redrawChart);
+listeners.push(() => renderEvaluation(t));
+listeners.push(() => renderWorkflow(t));
 setupTimers(document.getElementById("timers")!, data.timer.fast_s, data.timer.slow_s);
 document.getElementById("jump-from")!.textContent = String(data.thinking.off);
 document.getElementById("jump-to")!.textContent = String(data.thinking.on);
+
+const labHost = document.getElementById("lab-root");
+const lab = labHost
+  ? mountMechanismLab(labHost, {
+      scenarioBank: buildScenarioBank(data.seed),
+      ablations: data.ablations as AblationRow[],
+      repoUrl: data.links.repo,
+      t,
+    })
+  : null;
+if (lab) {
+  listeners.push(() => lab.refresh());
+}
+
+for (const btn of document.querySelectorAll<HTMLElement>("[data-jump-chapter]")) {
+  btn.addEventListener("click", () => {
+    const ch = btn.dataset.jumpChapter;
+    if (ch && lab) {
+      lab.selectChapter(ch as Parameters<typeof lab.selectChapter>[0]);
+      document.getElementById("lab")?.scrollIntoView({ behavior: "smooth" });
+    }
+  });
+}
 
 // ---- the game -------------------------------------------------------------------------
 const play = new PlaySection({ seed: data.seed, seconds: data.game_seconds, opponents: data.ranking, t });
@@ -141,9 +190,22 @@ listeners.push(() => play.relabel());
 
 applyCopy();
 
-// Test hook for scripted checks (Playwright): fast-forward game time and read the state.
-(window as unknown as { __site: object }).__site = {
+interface SiteTestHarness {
+  readonly play: PlaySection;
+  readonly lab: ReturnType<typeof mountMechanismLab> | null;
+  readonly lang: Lang;
+  readonly setLang: (next: Lang) => void;
+}
+
+declare global {
+  interface Window {
+    __site?: SiteTestHarness;
+  }
+}
+
+window.__site = {
   play,
+  lab,
   get lang() {
     return lang;
   },

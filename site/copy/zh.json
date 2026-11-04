@@ -1,25 +1,76 @@
 {
   "meta": {
-    "title": "一个 0.8B 模型的端侧决策实验",
-    "description": "一个 795 MB 的 0.8B 的小模型，在同样的吃豆人游戏上吃豆数是 Jev 的两倍多，还能离线在手机上运行。做自己的模型，而不是仅仅做一个用户。"
+    "title": "汇报 Decision Model",
+    "description": "跨领域技术验证报告：同一套 0.8B `/v1/systemone` 蒸馏流水线如何在实时控制（425 vs 178 颗豆，55 ms）与 23 类 OpenShift 裸金属装机故障诊断（标准场景 94.0% vs 81.7%，76 ms）中超越 27B+ 大模型，以及在 48 个真实 GitHub 生产工单（22.9% vs 41.7%）中揭示的四大落地前置条件。"
   },
   "nav": {
-    "lang": "English"
+    "lang": "English",
+    "overview": "总览",
+    "rca": "裸金属 RCA",
+    "lab": "机制实验室",
+    "play": "控制沙盒",
+    "benchmarks": "基准对比",
+    "paths": "两条路径",
+    "takeaways": "核心结论",
+    "openai": "云端模型实测"
   },
   "hero": {
-    "kicker": "一个 0.8B 小实验",
-    "title": "一个 0.8B 小模型，吃豆数是 Jev 的两倍多，还能离线跑在手机上",
-    "subtitle": "同一个吃豆人游戏，同样的文字输入：所有玩家只能看见文字，看不见画面。",
-    "jev_label": "Jev",
-    "ours_label": "我们的 0.8B",
-    "jev_stat": "30 秒：{pellets} 颗豆，丢 {lives_lost} 条命",
-    "ours_stat": "30 秒：{pellets} 颗豆，一条命没丢",
-    "note": "以上各是一局 30 秒。10 局平均：Jev {jev_avg} 颗，我们的 0.8B {ours_avg} 颗。",
+    "kicker": "结论先行 · 0.8B 专精小模型跨领域实验报告",
+    "title": "汇报 Decision Model",
+    "subtitle": "一是合适的场景（封闭选项与低延迟预算），二是干净的数据与可靠真值，三是合适的训练方式防止过拟合。下面我们先摆出这三条核心结论，再用裸金属装机故障诊断（`baremetal-rca`）与实时控制沙盒（`decision-pacman`）的实测数据逐一佐证：",
+    "kpis": {
+      "pellets_label": "实验佐证 1 · 合适场景 + 干净数据",
+      "pellets_delta": "吃豆人：原版 tev1:0.8b (69) 与 Jev (178) -> 蒸馏后 425（100% 确定性特征 + 5s 模拟器真值）",
+      "footprint_label": "实验佐证 2A · 干净教材 RCA (333 例)",
+      "footprint_delta": "RCA 学生在 333 条合成测试上达到 94.0%；独立验证集准确率从训练前 21.8% 升至训练后 90.2%。",
+      "training_label": "真实工单与分布差异",
+      "training_delta": "48 个真实 GitHub 工单（70.8% 代码 Bug）上跌至 22.9%；老师模型在配置故障上仅标对 5/14",
+      "latency_label": "实验佐证 3 · 训练轮数与窄域过拟合",
+      "latency_delta": "训练 2 轮 vs 1 轮虽拉高静态验证集准确率 (63.7%)，但真机得分从 423 暴跌至 266；通用 JevBench 0.66 -> 0.53"
+    },
+    "jev_label": "Jev（云端 API 基线）",
+    "ours_label": "我们的 0.8B（pacman-0.8b-qwen）",
+    "jev_stat": "30 秒受控基准：{pellets} 颗豆，丢 {lives_lost} 条命",
+    "ours_stat": "30 秒受控基准：{pellets} 颗豆，一条命没丢",
+    "note": "任务 A 受控实时沙盒（评估种子 100-109 平均）：Jev {jev_avg} 颗豆，我们的 0.8B 蒸馏模型 {ours_avg} 颗豆。之所以选择吃豆人作为首发试验田，是因为它恰好是 Jev 与 `/v1/systemone` 单 token 评分协议最天然的主场。",
     "replay": "重播"
   },
+  "rca": {
+    "kicker": "实验佐证一 · 裸金属装机故障根因分析 (OpenShift IPI / Metal3 / Ironic)",
+    "title": "裸金属 RCA 在合成案例上达 94.0%，在真实工单上为 22.9%",
+    "lead": "在一行训练或推理代码不改的前提下（直接复用 `build_sft.py`、`train.py` 与 `scripts/systemone_vllm.ts`），我们将同一套 0.8B 流水线应用于 OpenShift 裸金属部署故障诊断，覆盖 23 类根因（`bmc_credentials`、`dhcp_not_reaching`、`boot_mode_mismatch`、`api_ingress_vip_dns`、`product_bug` 等）。",
+    "synth_badge": "正面佐证 · 333 个干净标准文档案例",
+    "synth_title": "0.8B 学生答对 333 条合成案例中的 313 条",
+    "synth_body": "我们根据 Apache 2.0 协议的 OKD、OpenShift 与 Metal3 排障文档，用 27B 模型生成结构化故障摘要，取 1,128 条训练、225 条验证。LoRA 微调在单张 H100 上运行 141 步，约 3 分钟，验证集准确率从 21.8% 升至 90.2%。独立合成测试集含 DeepSeek-V4-Flash 编写的 333 条案例。",
+    "synth_bar_student": "rca-0.8b（LoRA，单张 H100 训练 3 分钟）",
+    "synth_bar_deepseek": "671B MoE 开源大模型（零样本，8 张 H100）",
+    "real_badge": "反面佐证 · 48 个真实 GitHub 生产工单",
+    "real_title": "历史学生在 48 个真实工单中答对 11 个",
+    "real_body": "我们从 metal3-io/baremetal-operator、metal3-io/ironic-image 与 openshift/installer 的 236 个已关闭 Issue 中筛出 77 个故障报告，其中 48 个根因已明确。由一名标注者确定 34 个产品缺陷与 14 个配置或环境故障。历史学生分别答对 10/34 和 1/14，DeepSeek 分别答对 15/34 和 5/14。类别比例、信息缺失和标签歧义可能解释差距，但各自的因果贡献尚未验证。",
+    "real_bar_student": "rca-0.8b 在 48 个已结案真实 GitHub 工单上的表现",
+    "real_bar_deepseek": "671B MoE 开源大模型（零样本）在 48 个真实工单上的表现",
+    "real_bar_audit": "读取维护者评论的 671B MoE 开源老师模型 vs 人工维护者真值",
+    "conditions_title": "两项任务提示我们检查哪些部署条件",
+    "conditions_lead": "游戏与 RCA 的结果提示了以下检查项。RCA 合成集与真实集差距的成因尚未经过对照实验验证。",
+    "c1_status": "前提 01 · 两项任务均验证",
+    "c1_title": "合适的场景：封闭选项与高频毫秒级决策",
+    "c1_body": "两项任务都选择封闭选项，即合法方向或 23 类根因。记录中的 0.8B 模型在各自实测硬件上用 37–76 ms 完成决策。RCA 的 21.8% 是训练前验证集准确率，并非 Jev 测试成绩。",
+    "c2_status": "前提 02A · 真实工单存在缺口",
+    "c2_title": "干净的输入：确定性机器事实 vs 人类工单噪音",
+    "c2_body": "游戏编码器直接从引擎计算距离和数量。真实工单摘要可能遗漏字段，并保留报告者的猜测。改进输入采集是下一步待验证的办法，尚非已证实的补救措施。",
+    "c3_status": "前提 02B · 真实工单存在缺口",
+    "c3_title": "干净的标签：模拟器推演真值 vs 老师打标偏差",
+    "c3_body": "吃豆人的老师标签使用 5 秒模拟推演。RCA 真实案例由一名标注者确定标签；老师读取维护者评论后，在 14 个配置或环境故障中仅有 5 个与该标签一致。这揭示了标签歧义，不能据此确定学生准确率上限。",
+    "c4_status": "训练与分布检查",
+    "c4_title": "防过拟合训练：先验对齐、早停与真机校验",
+    "c4_body": "RCA 训练数据近似均衡，而真实集中 70.8% 属于产品缺陷。这种分布差异可能解释准确率下降。另一个独立观察是，吃豆人训练两轮虽提高了离线验证准确率，游戏成绩却从 423 降至 266 颗豆。",
+    "btn_inspect": "在机制实验室中逐单检视真实 OpenShift 与 Metal3 故障案例 ↓",
+    "btn_rca_repo": "访问 baremetal-rca 代码仓库",
+    "btn_validation": "阅读完整 VALIDATION.md 跨领域报告"
+  },
   "play": {
-    "title": "换你来试试",
-    "lead": "同一局、30 秒，看看你能吃多少颗豆、排第几。",
+    "title": "受控沙盒体验：为什么吃豆人是验证 `/v1/systemone` 的最佳试验田",
+    "lead": "每一个吃豆人路口都是一道严格限时 33 ms 的 2-4 选 1 单选题，恰好处在 `/v1/systemone` 单 token 评分的设计靶心上。亲自试玩 30 秒，或打开「用模型的眼睛玩」，看看 0.8B 模型仅凭几行 JSON 特征是如何做决策的。",
     "start": "开始游戏",
     "eyes_toggle": "用模型的眼睛玩",
     "eyes_hint": "看不到游戏画面，你只能看到模型每步收到的几行文字描述。",
@@ -39,9 +90,9 @@
     "title": "它其实没有那么神秘",
     "lead": "什么都不定制，直接用普通的开源对话模型 phi4-mini 来玩，表现和 Jev 差不多。",
     "jev_label": "Jev",
-    "phi_label": "phi4-mini",
-    "chart_title": "10 局平均吃豆数",
-    "chart_note": "所有玩家看同一份文字。现成模型和手写规则挤在 148–232，我们的 0.8B 则是 425。",
+    "phi_label": "phi4-mini (3.8B)",
+    "chart_title": "历史完整对局平均吃豆数",
+    "chart_note": "历史现成模型、云端 API 与手写规则集中在 148 到 237 颗豆，蒸馏后的 0.8B 达到 425。所有玩家通过各自 API 读取相同事实与合法选项；各行汇总的局数不同。",
     "chart_labels": {
       "random": "随机",
       "tev1_08b": "tev1:0.8b",
@@ -51,14 +102,309 @@
       "greedy": "手写贪心规则",
       "ours": "我们的 0.8B",
       "gemma4_e4b": "gemma4:e4b",
-      "phi4_mini": "phi4-mini"
+      "phi4_mini": "phi4-mini",
+      "gpt_6_luna": "gpt-6-luna"
     },
     "offline_title": "复现本身就带来新能力",
-    "offline_body": "模型仅 795 MB，没网也能跑。在手机上完全离线运行，每一步只需约 0.5 秒。",
+    "offline_body": "Q8_0 量化模型仅 795 MB，无需网络即可通过 llama.cpp Metal 在 iPhone 16 Pro Max 上离线运行，每步推理约 505 毫秒。",
     "phi_stat": "30 秒：{pellets} 颗豆，丢 {lives_lost} 条命",
-    "chart_band": "现成模型和手写规则",
+    "chart_band": "现成模型 + 云端 API + 手写规则",
     "unmute": "打开声音",
     "mute": "静音"
+  },
+  "lab": {
+    "kicker": "交互式机制与实验发现实验室",
+    "title": "拆解 0.8B 模型如何在实时控制中超越前沿 API",
+    "lead": "点击下方任意架构节点或切换真实游戏路口快照，即可查看底层引擎数据结构、`/v1/systemone` 提示词、老师模型的 5 秒推演结果以及消融实验数据。",
+    "roles": {
+      "engine": "游戏引擎",
+      "encoder": "状态编码器",
+      "model": "决策模型",
+      "teacher": "老师模型",
+      "eval": "评测与消融"
+    },
+    "scenarios": {
+      "opening-fork": "开局分岔口",
+      "ghost-pinch": "幽灵包夹",
+      "power-pellet-chase": "大力丸反击",
+      "tunnel-escape": "隧道脱险"
+    },
+    "hardware": {
+      "m3-ultra": "M3 Ultra",
+      "rtx-5090": "RTX 5090",
+      "h100-vllm": "H100 + vLLM"
+    },
+    "ui": {
+      "reset": "重置实验室",
+      "diagram_hint": "点击任意流水线阶段（01-04），查看对应的数据契约与源码实现",
+      "input_label": "输入",
+      "output_label": "输出",
+      "scenario_label": "真实路口快照",
+      "junction_meta": "坐标 ({x}, {y}) · 距路口 {dist} 格 · {exits} 个合法出口",
+      "takeaway_label": "工程启示"
+    },
+    "ch1": {
+      "tab": "单 Token 决策契约",
+      "kicker": "第 01 章 · 协议与延迟",
+      "title": "`/v1/systemone` 如何把多 token 对话压缩为单次前向评分",
+      "question": "单 token 评分能省去短 JSON 回复中的多少解码计算？",
+      "e1": "keys",
+      "e2": "A..D",
+      "e3": "P(opt)",
+      "n1": {
+        "title": "路口扫描",
+        "sub": "findDecisionPoint()",
+        "body": "30 Hz 游戏主循环从不等待模型返回，而是沿着吃豆人当前走廊向前扫描，定位下一个拥有 2 个以上合法出口的决策路口。",
+        "io_in": "GameState (30 Hz)",
+        "io_out": "DecisionPoint + OptionKey[]"
+      },
+      "n2": {
+        "title": "选项字母映射",
+        "sub": "renderPrompt()",
+        "body": "将合法移动方向（`up`、`left`、`down`、`right`、`back`）映射为 `/v1/systemone` 模板中的单字节大写字母（`A`、`B`、`C`、`D`）。",
+        "io_in": "EncodedDecision",
+        "io_out": "停在答案首字母位置的完整提示词"
+      },
+      "n3": {
+        "title": "单 Token Logit 评分",
+        "sub": "POST /v1/systemone",
+        "body": "服务端无需自回归解码 7 个 token 的 JSON（`{\"move\":\"left\"}`），只需一次 prefill 前向计算，在合法选项字母上做 softmax 并返回概率与熵置信度。",
+        "io_in": "提示词（约 260 tokens）",
+        "io_out": "最优动作 + 概率分布 + 熵置信度"
+      },
+      "n4": {
+        "title": "非阻塞转向队列",
+        "sub": "isStillAhead()",
+        "body": "当 HTTP 响应返回时，代理循环检查吃豆人是否尚未越过该路口中心；若仍有效，则将转向指令写入该格点的预定队列。",
+        "io_in": "PolicyDecision",
+        "io_out": "PlannedTurn (dp.x, dp.y)"
+      },
+      "wb_latency_title": "计算分项估算：1 个与 7 个 token",
+      "one_token_label": "单 token 评分分项估算",
+      "seven_token_label": "7-token JSON 分项估算",
+      "latency_note": "分项估算：Prefill 为 {prefill} ms，每多解码一个 token 增加 {decode} ms。M3 Ultra 与 RTX 5090 使用已有 0.8B 模型的分项测量值；H100 使用示意假设。这些合计不含端到端请求开销。",
+      "wb_probs_title": "本地推演的示意权重，并非模型概率",
+      "confidence_badge": "示意权重置信度：{conf}",
+      "prompt_toggle": "预览 /v1/systemone 提示词；不会向 Ollama 发送请求",
+      "takeaway": "受约束的单 token 评分消除了 JSON 格式解析失败，并在每个路口省去了 6 步自回归解码开销。"
+    },
+    "ch2": {
+      "tab": "表征编码与时间窗",
+      "kicker": "第 02 章 · 状态表征与物理约束",
+      "title": "为什么紧凑的 BFS 特征编码在 30 Hz 时钟下远胜 ASCII 地图",
+      "question": "为什么 0.8B 到 4B 模型在 ASCII 网格上置信度只有 0.02 到 0.14，而在 BFS 特征上能达到 0.60 到 0.90？",
+      "e1": "Int16[]",
+      "e2": "260 tok",
+      "e3": "0.42 格",
+      "n1": {
+        "title": "精确迷宫 BFS",
+        "sub": "distancesThrough()",
+        "body": "针对下一个路口的每个合法出口，引擎在可通行格点上运行广度优先搜索（BFS），精确计算绕过拐角与穿越隧道的真实步数。",
+        "io_in": "路口坐标 (x, y) + 出口方向",
+        "io_out": "Int16Array 真实路径距离表"
+      },
+      "n2": {
+        "title": "纯事实特征 JSON",
+        "sub": "featuresEncoder",
+        "body": "编码器仅输出每个出口的客观几何事实（`ghost`、`ghost_coming`、`pellets`、`food`、`power`），不含主观结论，将提示词从约 630 tokens 压缩到约 260 tokens。",
+        "io_in": "GameState + BFS 距离表",
+        "io_out": "紧凑 JSON 状态（约 260 tokens）"
+      },
+      "n3": {
+        "title": "实时移动预算",
+        "sub": "pacTilesPerSecond()",
+        "body": "第 1 关吃豆人每秒移动 7.58 格。55 ms 的本地推理仅消耗 0.42 格位移；而 220 ms 的慢速调用会滑行 1.67 格，导致近距离路口决策过期。",
+        "io_in": "模型推理延迟 (ms)",
+        "io_out": "推理期间吃豆人滑行的格数"
+      },
+      "n4": {
+        "title": "前瞻流水线",
+        "sub": "findDecisionPoint(s, lookahead)",
+        "body": "当吃豆人距离已排好转向的路口不足 `lookahead` 格时，代理提前查询再下一个路口，确保新指令在到达路口中心前返回。",
+        "io_in": "当前位置 + 已计划转向",
+        "io_out": "下一个待决策路口"
+      },
+      "wb_encoder_title": "在同一路口对比三种状态编码器",
+      "tokens_label": "提示词 Token 数",
+      "chars_label": "状态字符数",
+      "conf_band_label": "实测模型置信度区间",
+      "wb_horizon_title": "推理延迟 vs 路口到达时间窗模拟",
+      "status_fresh": "及时送达",
+      "status_stale": "决策过期（已越过路口）",
+      "slider_label": "模拟模型推理延迟",
+      "speed_label": "吃豆人速度",
+      "traveled_label": "推理期间移动距离",
+      "junction_dist_label": "当前距路口距离",
+      "horizon_fresh_body": "模型思考期间吃豆人前进了 {traveled} 格，在到达距离 {dist} 格的路口前还留有 {margin} 格提前量。",
+      "horizon_stale_body": "模型思考期间吃豆人前进了 {traveled} 格，在答案返回前已经越过路口（距离 {dist} 格）达 {margin} 格，指令作废。",
+      "takeaway": "不要让端侧小模型浪费算力去数二维 ASCII 字符网格。用确定性代码预计算精确迷宫 BFS 距离，可将模型置信度从 0.14 以下提升至 0.60 以上，并将输入长度减半。"
+    },
+    "ch3": {
+      "tab": "老师前瞻蒸馏",
+      "kicker": "第 03 章 · 师生信息差蒸馏",
+      "title": "如何把老师的 5 秒引擎前瞻蒸馏进零前瞻的 0.8B 学生模型",
+      "question": "为什么现成模型最高只能拿到 237 颗豆，而同样只看 `features` 的 `pacman-0.8b-qwen` 能拿到 425 颗？",
+      "e1": "peek(5s)",
+      "e2": "5.4万条",
+      "e3": "LoRA",
+      "n1": {
+        "title": "5 秒引擎推演",
+        "sub": "peek() & rolloutValue()",
+        "body": "仅在离线打标签阶段，引擎对每个候选方向克隆当前状态并向前模拟 5 秒（150 帧）贪心走位，记录是否阵亡、吃豆数与得分变化。",
+        "io_in": "GameState + 候选方向",
+        "io_out": "PeekOutcome（阵亡秒数、吃豆、得分）"
+      },
+      "n2": {
+        "title": "27B 老师标注",
+        "sub": "teacher-peek5s",
+        "body": "Qwen3.5-27B 同时读取当前 `features` 与 5 秒 `peek()` 推演结果，对 54,193 个路口局面打标，识别表面安全但数秒后会被包夹的陷阱。",
+        "io_in": "features + 5 秒 PeekOutcome",
+        "io_out": "54,193 条高质量标注样本"
+      },
+      "n3": {
+        "title": "信息差监督微调",
+        "sub": "train.py",
+        "body": "0.8B 学生模型（`Qwen3.5-0.8B-Base`）在微调与推理时仅输入当前 `features`（不含任何 `peek` 前瞻），通过 LoRA (`r=32, alpha=64`) 内化老师的远期判断。",
+        "io_in": "仅当前 features（无前瞻信息）",
+        "io_out": "LoRA 权重（单卡训练 32 分钟）"
+      },
+      "n4": {
+        "title": "端侧量化部署",
+        "sub": "Q8_0 GGUF (795 MB)",
+        "body": "合并导出为 795 MB 的 Q8_0 GGUF 后，0.8B 学生模型在零运行时搜索开销下达到 425 颗豆（基座的 6.2 倍），并支持 iPhone 离线运行。",
+        "io_in": "合并后的 0.8B 权重",
+        "io_out": "795 MB GGUF（Ollama 与 iOS 通用）"
+      },
+      "wb_title": "学生推理输入 (`features`) vs 老师标注前瞻 (`peek`)",
+      "moves_summary": "近视贪心规则选择 '{student}' · 老师前瞻推演选择 '{teacher}'",
+      "horizon_unit": "推演",
+      "col_option": "候选方向",
+      "col_student": "0.8B 学生在推理时看到的特征 (features)",
+      "col_teacher": "27B 老师在打标时看到的推演 ({sec} 秒 peek)",
+      "col_value": "推演估值",
+      "teacher_pick": "老师优选",
+      "takeaway": "高昂的前瞻搜索应当放在离线数据标注阶段，而非线上推理阶段。借助老师标注时的 5 秒引擎推演，0.8B 学生模型无需线上搜索即可学会规避多路口陷阱。"
+    },
+    "ch4": {
+      "tab": "消融实验与发现",
+      "kicker": "第 04 章 · 实验记录第 18-24 节发现",
+      "title": "哪些因素真正起效，哪些属于统计噪声，以及踩过的底层坑",
+      "question": "软标签 KL 蒸馏、H100 BF16 满血老师或 671B MoE 开源老师模型能否显著超越 32 分钟 RTX 5090 基线？",
+      "e1": "mask",
+      "e2": "99.6%",
+      "e3": "±30 SE",
+      "n1": {
+        "title": "vLLM 概率掩码陷阱",
+        "sub": "processed_logprobs",
+        "body": "vLLM 的 `guided_choice` 在采样时对非法 token 施加掩码，但默认的 `raw_logprobs` 会在掩码前截取 top-k，导致 86.4% 的样本丢失合法选项概率，必须显式开启 `--logprobs-mode processed_logprobs`。",
+        "io_in": "全词表 Logits + guided_choice",
+        "io_out": "A..D 完整合法选项概率分布"
+      },
+      "n2": {
+        "title": "软标签 KL vs 硬标签 CE",
+        "sub": "Top-1 均值 0.996",
+        "body": "修复掩码后实测发现，27B 老师的 Top-1 平均概率高达 0.996（97.6% 的局面超过 0.99），几乎等价于 one-hot。因此软标签 KL 蒸馏（409）与硬标签（425）表现一致。",
+        "io_in": "老师概率分布向量",
+        "io_out": "KL 损失近似退化为交叉熵损失"
+      },
+      "n3": {
+        "title": "六组消融收敛于噪声带",
+        "sub": "409 至 481 颗豆",
+        "body": "在 10 局评测（标准误 SE 约 30 颗豆）下，无论切换 NVFP4 与 BF16、27B 与 671B MoE 开源老师模型，还是 CUDA 与 MLX，6 个蒸馏模型均落在同一统计区间内。",
+        "io_in": "6 组老师/硬件/损失函数变体",
+        "io_out": "差异未超统计显著性阈值 (|z| < 1.96)"
+      },
+      "n4": {
+        "title": "专精化与通用性的取舍",
+        "sub": "JevBench 0.66 -> 0.53",
+        "body": "针对吃豆人路口数据进行专项微调，使 `tev1:0.8b` 的游戏得分提升 6.2 倍（69 -> 425），但同时使其在 194 道通用决策题（JevBench）上的准确率从 0.66 降至 0.53。",
+        "io_in": "场景专精化 0.8B 权重",
+        "io_out": "任务提升 6.2 倍 vs 通用题下降 0.13"
+      },
+      "wb_mask_title": "第 22 节发现：vLLM `raw` 与 `processed_logprobs` 掩码对比",
+      "mode_raw": "默认 raw_logprobs (截取前 3)",
+      "mode_processed": "processed_logprobs (掩码后截取)",
+      "mask_explain": "假设当前路口有 A、B、C 三个合法方向，全词表原始概率为 A=49%, C=14%, D=12%, B=11%。观察截取 Top-3 时的差异：",
+      "valid_opt": "合法选项",
+      "invalid_opt": "非法词表 Token",
+      "dropped_warning": "触发缺陷：非法选项 'D' 排在前面，把合法选项 '{dropped}' 挤出了 Top-3！",
+      "retained_ok": "先执行合法选项掩码再取 Top-k：完整保留所有合法选项（{retained}）。",
+      "wb_ablation_title": "第 18-24 节：学生模型消融对比器（10 局评测均值）",
+      "clock_realtime": "实时模式 (30 Hz)",
+      "clock_lockstep": "锁步等待 (Wait)",
+      "col_variant": "学生模型变体",
+      "col_teacher": "老师模型 / 训练设置",
+      "col_pellets": "平均吃豆 (±标准误)",
+      "pellets_unit": "颗豆",
+      "verdict_noise": "处于 10 局评测统计噪声范围内 (|z| < 1.96)",
+      "verdict_sig": "具有统计显著性差异 (|z| >= 1.96)",
+      "takeaway": "一旦状态表征 (`features`) 与老师前瞻 (`peek5s`) 设计正确，单张消费级显卡 32 分钟的硬标签 LoRA 即可拿满收益；更换更贵的老师或软标签均在统计噪声之内。"
+    },
+    "ch5": {
+      "tab": "裸金属 RCA 与真机鸿沟",
+      "kicker": "第 05 章 · 生产级裸金属基础设施案例剖析",
+      "title": "将完全相同的流水线迁移至 OpenShift 裸金属装机故障根因分析",
+      "question": "当我们把未经修改的 `decision-pacman` 蒸馏与 `/v1/systemone` 评分流水线直接用于 23 类 OpenShift IPI / Metal3 / Ironic 裸金属部署故障诊断 (`baremetal-rca`) 时，会发生什么？",
+      "e1": "1,128 条标注",
+      "e2": "LoRA -> rca-0.8b",
+      "e3": "333 合成 + 48 真实",
+      "n1": {
+        "title": "23 类故障根因契约",
+        "sub": "decision-pacman/teacher-v1",
+        "body": "将每起 OpenShift / Metal3 裸金属故障编码为紧凑 JSON（`bmo_phase`、`provisioning_state`、`hardware_vendor`、`boot_mode`、`network_stack`、`symptom_primary`、`log_excerpt`），在 23 个字母选项（`A..W`）上进行单次前向评分。",
+        "io_in": "BMH / Ironic / Installer 日志与 CR 状态",
+        "io_out": "JSON 事实特征 + 23 个候选根因 (bmc_credentials .. product_bug)"
+      },
+      "n2": {
+        "title": "单张 H100 LoRA 微调",
+        "sub": "3 分钟完成 141 步训练",
+        "body": "直接复用未修改的 `training/build_sft.py` 与 `training/train.py`，在 1,128 条 27B 开源老师模型样本上微调 `tev1-0.8b`。验证集准确率在 3 分钟内从零样本的 21.8% 跃升至 90.2%。",
+        "io_in": "1,128 条标注样本 (温度 T=2.0)",
+        "io_out": "rca-0.8b 合并权重 (验证集准确率 90.2%)"
+      },
+      "n3": {
+        "title": "标准合成故障集评测",
+        "sub": "94.0% vs 81.7% (671B MoE)",
+        "body": "在 333 个未见合成裸金属故障样本（种子 1000-1002）上，单步仅需 76 ms 的 `rca-0.8b` 学生模型达到 94.0% 的 Top-1 准确率（Top-3 达 98.5%），击败零样本 671B MoE 开源大模型 (81.7%) 与 27B 开源模型 (65.2%)。",
+        "io_in": "333 个独立测试集状态 (涵盖 22 类故障)",
+        "io_out": "94.0% Top-1 准确率，单步延迟 76 ms"
+      },
+      "n4": {
+        "title": "48 个真实 GitHub 工单审计",
+        "sub": "22.9% vs 41.7% (Sim-to-Real 鸿沟)",
+        "body": "在 48 个真实 OpenShift、Metal3 和 Ironic 工单上，学生为 22.9%，DeepSeek 为 41.7%。真实集有 70.8% 的产品缺陷，与近似均衡的训练集不同。类别偏移、报告不完整和标签歧义都是可能原因；尚无消融实验隔离各自的影响。",
+        "io_in": "48 个真实 GitHub 工单 (34 个代码缺陷 + 14 个配置错误)",
+        "io_out": "精准定位条件 #3 与条件 #4 的违背机制"
+      },
+      "case_label": "切换裸金属故障真实案例",
+      "cases": {
+        "synth-1000": "合成 #1000 · UCS Redfish 401",
+        "bmo-1098": "BMO #1098 · HTTP 误配 HTTPS",
+        "installer-10108": "Installer #10108 · LB 配置丢失",
+        "ironic-137": "Ironic #137 · 缺失 isolinux.bin",
+        "synth_1000_diag": "<b>分布内表现（合成集 94.0% 准确率）。</b>Cisco UCS 报出明确的 HTTP 401 Redfish 堆栈。`rca-0.8b` 在 <b>76 ms</b> 内以 <b>89.1%</b> 的置信度精准命中 `bmc_credentials`，准确率追平 671B MoE 开源大模型且延迟减半。",
+        "bmo_1098_diag": "<b>真实配置故障：0.8B 学生击败受评论误导的老师。</b>运维人员传入了 `http://` BMC 地址，而 Metal3 默认发起 HTTPS 握手（报 `tls: recordHeaderError`）。`rca-0.8b`（<b>61.6%</b>）与零样本 671B MoE 开源模型均正确选出 `bmc_driver_mismatch`；反而是读取了维护者讨论的老师模型被带偏，误标为 `product_bug`。",
+        "installer_10108_diag": "<b>学生漏判的真实产品缺陷。</b>openshift/installer 的缺陷导致生成 AgentClusterInstall 时丢失 loadBalancer: UserManaged。学生以 <b>86.9%</b> 概率选择 api_ingress_vip_dns，DeepSeek 则选择 product_bug。仅凭这个例子，无法确定错误是否由类别比例引起。",
+        "ironic_137_diag": "<b>违背条件 #3（缺少模拟器校验用户主观猜测）。</b>报障人在使用 `redfish-virtualmedia` 时漏填了 `boot_mode: uefi`，导致回退到传统 BIOS ISO 构建并因缺失 `isolinux.bin` 报错，但报障人在正文中错误怀疑是容器镜像漏装了 `syslinux` 包。由于没有模拟器去重放验证配置，`rca-0.8b`（<b>80.2%</b>）与零样本 671B MoE 开源模型双双被报障人的 `product_bug` 假说误导。"
+      },
+      "splits": {
+        "synthetic": "标准合成评测集 (333 例)",
+        "real": "真实 GitHub 工单集 (48 例)"
+      },
+      "wb_payload_title": "编码后的 `rca-facts` 结构化输入 (`/v1/systemone` Payload)",
+      "truth_badge": "维护者真值 · {label}",
+      "student_pick_label": "rca-0.8b (76 ms)",
+      "deepseek_pick_label": "671B MoE 开源模型 (145 ms)",
+      "teacher_audit_label": "老师模型 + 评论上下文",
+      "wb_probs_title": "`rca-0.8b` `/v1/systemone` 单次前向概率分布 ({ms} ms)",
+      "status_match": "命中维护者真值",
+      "status_gap": "Sim-to-Real / 先验分布偏移",
+      "ground_truth_tag": "真实根因",
+      "prior_synth_label": "合成训练集先验",
+      "prior_real_label": "真实工单集先验",
+      "config_agree_label": "老师配置类标注一致率",
+      "takeaway": "学生很好地学会了合成案例，但真实集成绩仍为 22.9%。应继续检验更完整的故障输入、更有代表性的训练样本，以及经过独立复核的标签，再判断这条路径是否适合生产部署。"
+    }
   },
   "paths": {
     "title": "普通开源模型还不够？两条路",
@@ -86,10 +432,29 @@
     "closed_title": "闭源的服务",
     "closed_body": "能搞定就用；遇到搞不定的情况，你只能换一家。",
     "yours_title": "你自己的模型",
-    "yours_body": "体积、速度、成本、场景、智能，每一个方面你都可以亲手去做改动。",
+    "yours_body": "体积、速度、成本、场景、智能，每一个参数你都可以亲手调整。",
     "quote": "会做而选择不用，和不会做只能用别人的，是完全不一样的。",
     "axis_speed": "速度",
     "axis_skill": "能力"
+  },
+  "takeaways": {
+    "kicker": "核心结论先行",
+    "title": "自己训练小模型真正有效的三大前提",
+    "lead": "把理想模拟器沙盒（`decision-pacman`）与真实生产运维工单（`baremetal-rca`）放在同一套代码下对比，证明自训 0.8B 模型必须同时满足以下三个前提：",
+    "t1_badge": "前提 01 · 合适的场景",
+    "t1_title": "必须是封闭选项与高频实时决策；原版 Jev 直接拿来用并不理想",
+    "t1_body": "历史吃豆人成绩为 tev1:0.8b 69 颗豆、Jev 178 颗豆、蒸馏学生 425 颗豆。RCA 同样是封闭选择任务，但 21.8% 训练前指标测的是另一批验证样本。",
+    "t2_badge": "前提 02 · 干净的数据",
+    "t2_title": "真实案例测试揭示合成集成绩的局限",
+    "t2_body": "吃豆人使用引擎事实与带模拟推演的老师标签。RCA 使用生成的训练摘要，再以真实工单检验。学生在合成集上为 94.0%，真实集为 22.9%。报告信息缺失、类别偏斜及标签歧义都是可能原因；这次实验没有隔离它们各自的影响。",
+    "t3_badge": "前提 03 · 合适的训练方式防止过拟合",
+    "t3_title": "严防合成分布过拟合与多轮退化，静态验证集高分不代表真实泛化",
+    "t3_body": "RCA 验证集达到 90.2%、合成测试集达到 94.0%，真实集却只有 22.9%。训练与部署数据不一致是待验证的解释。在吃豆人中，训练两轮虽提升离线验证准确率，游戏成绩却从 423 降至 266。",
+    "btn_rca_repo": "访问 baremetal-rca 代码仓库",
+    "btn_validation": "阅读 VALIDATION.md 跨领域验证报告",
+    "btn_repo": "访问 decision-pacman 代码仓库",
+    "btn_model": "在 Hugging Face 下载 0.8B GGUF",
+    "btn_notebook": "阅读 24 节完整实验记录"
   },
   "cta": {
     "title": "想从用户变成 Builder？",
@@ -99,12 +464,151 @@
   "footer": {
     "run_title": "在自己电脑上跑起来",
     "links_title": "相关链接",
-    "repo": "GitHub 仓库",
-    "model": "Hugging Face 上的模型",
-    "results": "完整成绩",
-    "notebook": "实验记录：十几组实验",
-    "fineprint": "注意这里的结果只对一个游戏有效，每个玩家做了 10 局测试，不同运行下实时成绩可能不同。",
+    "rca_repo": "baremetal-rca GitHub 仓库",
+    "validation": "VALIDATION.md 跨领域验证报告",
+    "repo": "decision-pacman GitHub 仓库",
+    "model": "Hugging Face 0.8B GGUF 模型",
+    "results": "完整评测数据",
+    "notebook": "实验记录：24 组实验与消融分析",
+    "fineprint": "RCA 使用 333 条合成案例和 48 个真实 OpenShift/Metal3/Ironic 工单，历史学生结果来自 H100。吃豆人使用种子 100–109，历史均值分别汇总 10、20 或 30 局。本次 OpenAI 与 Jev 测试在带日期的对比中单独标明。",
     "copy": "复制",
     "copied": "已复制"
+  },
+  "evaluation": {
+    "kicker": "本次 API 实测",
+    "title": "决策接口与普通 LLM，完成相同任务",
+    "lead": "本次实测涵盖 GPT-6 Luna 的 Decisions 与 Responses 接口、GPT-6.1 Terra 的 Responses 接口，以及 Jev 1.13.0 和 1.14.0。微调模型的已有结果仍标为历史测量。",
+    "fresh": "本次实测",
+    "historical": "历史测量",
+    "pending": "待完成",
+    "unrecorded": "未记录",
+    "cost_pending": "评测进行中，费用尚未汇总完整。",
+    "cost_incomplete": "共 {requests} 次请求，其中 {unknown} 次用量未确定；此处为费用下界。",
+    "cost_complete": "共 {requests} 次请求，均已记录 token 用量。",
+    "cost_basis": "按响应中的 token 用量及官方公开单价计算，是费用估算而非账单，仅统计本次会话。",
+    "pacman_title": "吃豆人完整对局对比",
+    "pacman_protocol": "所有玩家读取当前状态 features，使用实时计时、1 倍速、种子 100–109，每局上限 300 秒。吃豆数为每局均值，延迟为各局 p50 的均值。",
+    "model": "模型",
+    "provenance": "测量来源",
+    "games": "局数",
+    "pellets": "平均吃豆数",
+    "latency": "延迟（ms）",
+    "failures": "失败决策数",
+    "historical_note": "本次实测使用同一台 Linux 客户端和相同任务协议。先跑 Decisions，再同时跑两个 Jev 版本，最后同时跑两个 Responses 模型。各批次的网络和服务端负载可能不同。历史本地测试使用 M3 Ultra，历史云端测试经过其网络链路。因此这些结果不能证明同一时段的配对排名，也不能直接比较纯计算速度。历史均值分别来自 10、20 或 30 局。",
+    "pacman_source": "历史吃豆人评测方法与结果",
+    "rca_title": "同一批保留案例上的 RCA 对比",
+    "rca_protocol": "模型只读取事实与选项描述，从 23 类根因中选一项，不会看到标签。合成案例 {synthetic} 条，真实工单 {real} 条；失败请求计为答错。",
+    "synthetic": "合成集准确率",
+    "real": "真实集准确率",
+    "synthetic_latency": "合成集 p50（ms）",
+    "real_latency": "真实集 p50（ms）",
+    "majority_note": "在真实集上，全部猜 product_bug 就能达到 {accuracy}。每个模型都应与这个多数类基线对照。",
+    "majority_label": "全部猜 product_bug",
+    "rca_limits": "真实案例只有一位标注者，且多数属于 product_bug。小样本和类别偏斜不足以给出可靠的逐类排名。输入已经过摘要处理，这里的费用仅覆盖分类，不含前期处理和后续分析。",
+    "rca_source": "历史 RCA 基线与数据集方法",
+    "rca_bar_note": "OpenAI 和两个 Jev 版本在 {date} 实测；学生模型和 DeepSeek 为历史结果。所有模型使用同一套评估案例，延迟来自不同服务环境。",
+    "usage_title": "请求、token 与费用",
+    "task": "任务",
+    "requests": "请求数",
+    "input": "输入 token",
+    "cache_read": "缓存读取",
+    "cache_write": "缓存写入",
+    "output": "输出 token",
+    "cost": "估算费用（USD）",
+    "formula": "OpenAI 费用为未缓存输入、缓存读取、缓存写入和输出 token 分别乘以上表对应接口单价，再除以 1,000,000。缓存读取和写入已经包含在输入 token 内。推理 token 已包含在输出中，只计费一次。",
+    "usage_note": "Jev 不报告缓存数量，显示为 N/A。接口没有报告推理 token 时也显示 N/A。这里的 OpenAI 缓存写入价格对应默认 30 分钟保留时间。费用包含连通性检查，不含历史模型成本、本地算力、RCA 数据准备和下游 LLM 分析。 吃豆人的延迟和存活时间会改变请求数量；一轮游戏更便宜，不代表完成相同推理工作量更便宜。RCA 则使用固定数量的案例。",
+    "pricing_source": "来源",
+    "cache_source": "OpenAI 缓存及保留时间定价",
+    "tasks": {
+      "pacman": "吃豆人",
+      "rca_synthetic": "RCA 合成案例",
+      "rca_real": "RCA 真实工单",
+      "preflight": "连通性检查"
+    },
+    "rca_failures": "{model} 失败请求数：合成集 {synthetic}，真实集 {real}。",
+    "jev_formula": "Jev 美元费用 = 输入 token × 0.042 / 1,000,000。两个受测 Jev 版本的输出都免费。",
+    "provider_cost_title": "按供应商汇总费用",
+    "provider": "供应商",
+    "not_applicable": "不适用",
+    "responses_protocol": "账号模型列表没有 GPT-6.1 Luna，因此改用 GPT-6 Luna。两个 Responses 模型都关闭额外推理，使用标准服务档位，并以严格 JSON 返回一个合法选项。这测量的是低成本配置，不代表模型的最高能力。",
+    "reasoning": "输出中的推理 token",
+    "rates_title": "官方价格，美元 / 百万 token",
+    "uncached_rate": "未缓存输入",
+    "official_pricing": "官方定价",
+    "comparison_cost": "费用（USD）",
+    "pacman_cost_scope": "费用为该行整轮游戏的 API 总费用，不含连通性检查。历史费用未记录。",
+    "rca_cost_scope": "费用合计 {synthetic} 条合成案例和 {real} 条真实案例的分类调用，不含连通性检查。历史费用未记录。"
+  },
+  "workflow": {
+    "kicker": "把 RCA 的整条链路算进去",
+    "title": "分类只占 RCA 全链路费用的一部分",
+    "lead": "在这套流程里，决策模型负责选一个根因类别。证据准备、故障调查和结论解释仍需要 LLM。最终能省多少，取决于分类这一步原本占总费用的多大比例。",
+    "stages": {
+      "evidence": {
+        "owner": "输入",
+        "title": "收集证据",
+        "body": "日志、指标、事故历史和系统状态。"
+      },
+      "prepare": {
+        "owner": "LLM · 可能新增",
+        "title": "准备分类输入",
+        "body": "预分类、摘要或结构化处理，让证据适合分类器。额外调用也要计费。"
+      },
+      "classify": {
+        "owner": "决策模型",
+        "title": "选择根因类别",
+        "body": "根据整理好的事实，从 23 个候选根因中选一个。"
+      },
+      "investigate": {
+        "owner": "LLM",
+        "title": "分析故障原因",
+        "body": "验证假设，关联证据，解释故障为什么发生。"
+      },
+      "resolve": {
+        "owner": "LLM + 工具",
+        "title": "修复并验证",
+        "body": "提出修复方案，检查结果，撰写事故报告。"
+      }
+    },
+    "measured_scope": "本次基准实际测量的部分",
+    "evidence_path": "原始证据可能仍要传给下游 LLM。一个类别或一份摘要，无法替代进一步调查所需的完整日志。",
+    "diagram_note": "这是流程示意，不是端到端实测。各步骤的宽度不代表费用。上面的测试只对已经过摘要处理的输入进行分类。",
+    "illustration": "假设示例 · 不是实测费用",
+    "calculator_title": "整条链路到底能省多少？",
+    "baseline_units": "原流程 = 100 个费用单位",
+    "calculator_lead": "调整分类占比、新分类器的相对费用，以及新增的 LLM 数据处理费用。这个例子假设其他步骤的工作量保持不变。",
+    "controls": {
+      "classificationShare": {
+        "label": "分类占原流程总费用的比例",
+        "hint": "f · 分母是原流程的全部费用。"
+      },
+      "replacementPercent": {
+        "label": "新分类器相对于原分类步骤的费用",
+        "hint": "r · 10% 表示这一步便宜了 90%。"
+      },
+      "extraPreparation": {
+        "label": "新增 LLM 数据处理费用",
+        "hint": "h · 相对于原流程总费用，额外增加的比例。"
+      }
+    },
+    "baseline": "原流程",
+    "replacement": "引入决策模型后",
+    "units": "{n} 个单位",
+    "unchanged": "其他工作 · {n}",
+    "original": "原分类步骤 · {n}",
+    "classifier": "新分类器 · {n}",
+    "preparation": "新增数据处理 · {n}",
+    "saved": "总费用减少 {n}%",
+    "extra": "总费用增加 {n}%",
+    "same": "总费用不变",
+    "limit": "如果其他工作不变，即使分类器完全免费，最多也只能省掉分类原本占据的那部分费用。新增处理会进一步抵消节省。如果分类结果能让流程提前结束，或减少后续 LLM 调用，这个假设就会改变。",
+    "accounting": "只计算新方案额外引入的数据处理。两种方案共有的预处理已经包含在基准费用里。滑块表示假设的费用比例，不是 token 单价比例，也不是实测的全链路节省。",
+    "scope_title": "实测费用还没有覆盖什么",
+    "scope_body": "RCA 对比测试只从固定类别中选择答案，输入已经是整理后的事实。报告的 API 费用不含摘要生成、补充证据、根因解释和修复验证。这些步骤仍可能需要调用 LLM。",
+    "decisions_source": "OpenAI Decisions 的输出约定",
+    "context_title": "输入限制也可能增加工作",
+    "context_body": "部署时选择的上下文预算和输入结构，可能迫使流程筛选证据、分块，或先调用 LLM 做摘要。这既增加处理费用，也可能丢掉后续分析需要的证据。不能把“小上下文窗口”当作所有决策模型的共同属性。",
+    "context_limits": "Jev 1.13 和 1.14 的文档默认限制为每请求 64k token、每问题 32k token。主动开启长上下文后，两者都可到 262k，但厂商提示速度和准确率会受影响。本次测试使用默认设置。",
+    "context_source": "Jev 模型及上下文限制"
   }
 }

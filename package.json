@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "dev:site": "vite --config vite.site.config.ts",
     "build:site": "tsc --noEmit && vite build --config vite.site.config.ts",
+    "build:single": "npm run build:site && tsx scripts/bundle_single_html.ts",
     "preview:site": "vite preview --config vite.site.config.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
